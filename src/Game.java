@@ -75,5 +75,34 @@ public class Game {
         return i;
     }
 
-    public int
+    /**
+     * Check if the last move resulted in a win for the player who played it
+     * @param lastX represents the x index of the last move
+     * @param lastY represents the y index of the last move
+     * @return true if the current board has a win (for the last player who moved), false otherwise
+     */
+    public boolean isWin(int lastX, int lastY){
+        /** NEED TO CHECK AND TEST */
+        // vertical check
+        for (int i = 0; i < ROWS-4; i++)
+            if (_board[i][lastY] == _board[i+1][lastY] && _board[i+2][lastY] == _board[i+3][lastY])
+                return true;
+
+        // horizontal check
+        for (int i = 0; i < COLS-4; i++)
+            if (_board[lastX][i] == _board[lastX][i+1] && _board[lastX][i] == _board[lastX][i+2] && _board[lastX][i] == _board[lastX][i+3])
+                return true;
+
+        // diagonal (left-down to right-up) check
+        for (int i = Math.min(3, Math.min(lastX,lastY)); i >= 0 && lastX - i + 3 < ROWS && lastY - i + 3 < COLS; i--)
+            if (_board[lastX-i][lastY-i] == _board[lastX-i+1][lastY-i+1] && _board[lastX-i][lastY-i] == _board[lastX-i+2][lastY-i+2] && _board[lastX-i][lastY-i] == _board[lastX-i+3][lastY-i+3])
+                return true;
+
+        // diagonal (left-down to right-up) check
+        for (int i = Math.min(3, Math.min(ROWS-lastX,lastY)); i >= 0 && lastX + i - 3 < ROWS && lastY - i + 3 < COLS; i--)
+            if (_board[lastX+i][lastY-i] == _board[lastX+i-1][lastY-i-1] && _board[lastX+i][lastY-i] == _board[lastX+i-2][lastY-i+2] && _board[lastX-i][lastY-i] == _board[lastX+i-3][lastY-i+3])
+                return true;
+
+        return false;
+    }
 }
