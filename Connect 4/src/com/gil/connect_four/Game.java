@@ -1,3 +1,4 @@
+package com.gil.connect_four;
 public class Game {
     public static final int ROWS = 6; // constant variable for number of rows
     public static final int COLS = 7; // constant variable for number of columns
@@ -82,7 +83,7 @@ public class Game {
      * @return true if the current board has a win (for the last player who moved), false otherwise
      */
     public boolean isWin(int lastX, int lastY){
-        /** NEED TO CHECK AND TEST */
+        /* NEED TO CHECK AND TEST */
         // vertical check
         for (int i = 0; i < ROWS-4; i++)
             if (_board[i][lastY] == _board[i+1][lastY] && _board[i+2][lastY] == _board[i+3][lastY])
