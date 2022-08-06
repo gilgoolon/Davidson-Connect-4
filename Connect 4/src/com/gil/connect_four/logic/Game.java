@@ -1,4 +1,4 @@
-package com.gil.connect_four;
+package com.gil.connect_four.logic;
 public class Game {
     public static final int ROWS = 6; // constant variable for number of rows
     public static final int COLS = 7; // constant variable for number of columns
@@ -70,7 +70,7 @@ public class Game {
      */
     public int firstEmpty(int col){
         int i = 0;
-        while (_board[i][col] == Color.Empty && i < ROWS)
+        while (_board[i][col] != Color.Empty && i < ROWS)
             i++;
 
         return i;

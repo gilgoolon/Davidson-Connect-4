@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: gray;" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gil.connect_four.gui.GameGraphicsController">
+   <children>
+      <BorderPane prefHeight="720.0" prefWidth="1280.0">
+         <top>
+            <Label prefHeight="52.0" prefWidth="72.0" text="Connect Four" BorderPane.alignment="CENTER" />
+         </top>
+         <center>
+            <Pane fx:id="gamePane" onMouseMoved="#mouseMovedBoard" prefHeight="668.0" prefWidth="900.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="668.0" stroke="BLACK" strokeType="INSIDE" width="900.0" />
+               </children>
+            </Pane>
+         </center>
+         <left>
+            <VBox alignment="TOP_CENTER" prefHeight="668.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Label text="Chat" />
+                  <ScrollPane prefHeight="614.0" prefWidth="180.0" />
+                  <Pane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <TextField fx:id="_chatTextField" alignment="TOP_LEFT" onAction="#sendChatMessage" prefHeight="118.0" prefWidth="200.0" promptText="Send a message...">
+                           <font>
+                              <Font name="Calibri" size="16.0" />
+                           </font>
+                        </TextField>
+                     </children>
+                  </Pane>
+               </children>
+            </VBox>
+         </left>
+         <right>
+            <VBox alignment="CENTER" prefHeight="668.0" prefWidth="180.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Label fx:id="_opponentLabel" alignment="CENTER" prefHeight="135.0" prefWidth="200.0" text="Opponent: Gil" textAlignment="CENTER">
+                     <font>
+                        <Font name="Calibri" size="16.0" />
+                     </font>
+                  </Label>
+                  <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#quitPressed" text="Quit" />
+               </children>
+            </VBox>
+         </right>
+      </BorderPane>
+   </children>
+</Pane>

@@ -1,4 +1,4 @@
-package com.gil.connect_four;
+package com.gil.connect_four.logic;
 public enum Color {
     Red(1),
     Yellow(-1),
