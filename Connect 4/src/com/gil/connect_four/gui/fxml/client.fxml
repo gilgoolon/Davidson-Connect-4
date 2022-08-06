@@ -17,7 +17,7 @@
             <Label prefHeight="52.0" prefWidth="72.0" text="Connect Four" BorderPane.alignment="CENTER" />
          </top>
          <center>
-            <Pane fx:id="gamePane" onMouseMoved="#mouseMovedBoard" prefHeight="668.0" prefWidth="900.0" BorderPane.alignment="CENTER">
+            <Pane fx:id="gamePane" onMouseMoved="#mouseMovedBoard" onMousePressed="#mousePressedBoard" prefHeight="668.0" prefWidth="900.0" BorderPane.alignment="CENTER">
                <children>
                   <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="668.0" stroke="BLACK" strokeType="INSIDE" width="900.0" />
                </children>
