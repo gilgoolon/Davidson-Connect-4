@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class GameGraphics extends Application {
+public class Client extends Application {
     public static void main(String[] args) {
         launch(args);
     }

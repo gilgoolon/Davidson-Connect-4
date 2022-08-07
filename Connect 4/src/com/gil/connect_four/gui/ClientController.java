@@ -15,12 +15,13 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
+import org.jetbrains.annotations.NotNull;
 
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
 
-public class GameGraphicsController {
+public class ClientController {
 
     @FXML
     private TextField _chatTextField;
@@ -29,6 +30,7 @@ public class GameGraphicsController {
     @FXML
     private Pane gamePane;
 
+    // Game and GUI variable
     protected static double width;
     protected static double height;
     protected static double xLeg;
@@ -36,12 +38,13 @@ public class GameGraphicsController {
     protected double padding;
     protected double radius;
     protected static final double imaginaryCircleOpc = 0.4;
-
     private final Game game;
     private int currentMouseCol;
     private Circle imaginaryCircle;
 
-    public GameGraphicsController(){
+    // Networking variables
+
+    public ClientController(){
         game = new Game();
         currentMouseCol = 0;
     }
@@ -68,7 +71,7 @@ public class GameGraphicsController {
         imaginaryCircle.toFront();
     }
     @FXML
-    void quitPressed(ActionEvent event) {
+    void quitPressed() {
         Platform.exit();
     }
 
@@ -78,7 +81,7 @@ public class GameGraphicsController {
     }
 
     @FXML
-    void mouseMovedBoard(MouseEvent event){
+    void mouseMovedBoard(@NotNull MouseEvent event){
         int newCol = (int)(event.getX()/xLeg);
 
         if (newCol == currentMouseCol)
@@ -94,8 +97,12 @@ public class GameGraphicsController {
         }
     }
 
+    /**
+     * This function gets called every time the mouse is pressed on the board.
+     * as a result of the press, if the move is valid it would be played, otherwise nothing happens
+     */
     @FXML
-    void mousePressedBoard(MouseEvent event){
+    void mousePressedBoard(){
         if (!game.isFreeCol(currentMouseCol))
             return;
 
@@ -134,13 +141,16 @@ public class GameGraphicsController {
         ft.setCycleCount(1);
         ft.setFromValue(0);
         ft.setToValue(1);
+        final int oldCol = currentMouseCol;
         ft.setOnFinished((event) -> {
             // update imaginary circle
             Platform.runLater(()->{
                 imaginaryCircle.setFill(game.isRedToMove() ? Color.RED : Color.YELLOW);
-                if (Game.ROWS-1-row-1 >= 0)
-                    imaginaryCircle.setCenterY((Game.ROWS-1-row-1)*yLeg + yLeg/2.0);
-                else imaginaryCircle.setDisable(true);
+                if (oldCol == currentMouseCol) { // only update the imaginary circle if the mouse hasn't been moved from the col
+                    if (Game.ROWS - 1 - row - 1 >= 0)
+                        imaginaryCircle.setCenterY((Game.ROWS - 1 - row - 1) * yLeg + yLeg / 2.0);
+                    else imaginaryCircle.setDisable(true);
+                }
             });
         });
         // play the transitions

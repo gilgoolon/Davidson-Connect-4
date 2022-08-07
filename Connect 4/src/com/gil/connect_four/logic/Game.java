@@ -87,7 +87,7 @@ public class Game {
 
         // diagonal (up-left) check
         for (int x = 0; x + 3 < COLS; x++){
-            for (int y = ROWS-1; y > 0; y--){
+            for (int y = ROWS-1; y - 3 >= 0; y--){
                 if (_board[x][y] != Color.Empty && _board[x][y] == _board[x+1][y-1] && _board[x][y] == _board[x+2][y-2] && _board[x][y] == _board[x+3][y-3])
                     return true;
             }
