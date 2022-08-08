@@ -8,23 +8,23 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class Client extends Application {
+public class Server extends Application {
     public static void main(String[] args) {
         launch(args);
     }
 
     public void start(Stage stage) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("fxml/client.fxml"));
+        loader.setLocation(getClass().getResource("fxml/server.fxml"));
         Parent root = loader.load();
-        ClientController cont = loader.getController();
+        ServerController cont = loader.getController();
         stage.setOnCloseRequest((e) -> cont.terminate());
-        cont.startClient();
+        cont.execute(); // start the server
 
         Scene scene = new Scene(root);
         stage.setScene(scene);
 
-        stage.setTitle("Connect-4");
+        stage.setTitle("Connect-4 (Server)");
         stage.show();
     }
 }
