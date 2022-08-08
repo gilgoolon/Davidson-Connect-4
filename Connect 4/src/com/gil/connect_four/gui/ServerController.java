@@ -1,9 +1,11 @@
 package com.gil.connect_four.gui;
 
+import com.gil.connect_four.logic.Color;
 import com.gil.connect_four.logic.Game;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -21,13 +23,15 @@ public class ServerController
     @FXML
     private TextArea outputArea;
 
+    @FXML
+    private TextField inputTextField;
+
     private final Game game;
     private final Player[] players; // array of Players
     private ServerSocket server; // server socket to connect with clients
     private int currentPlayer; // keeps track of player with current move
     private final static int PLAYER_X = 0; // constant for first player
-    private final static int PLAYER_O = 1; // constant for second player
-    private final static String[] MARKS = {"X", "O"}; // array of marks
+    private final static Color[] COLORS = {Color.Red, Color.Yellow}; // array of colors
     private final ExecutorService runGame; // will run players
     private final Lock gameLock; // to lock game for synchronization
     private final Condition otherPlayerConnected; // to wait for other player
@@ -67,7 +71,10 @@ public class ServerController
 
     @FXML
     void sendMessagePressed(){
+        displayMessage("Server>>> " + inputTextField.getText() + "\n");
+        // need to send to both players
 
+        inputTextField.setText("");
     }
 
     // wait for two connections so game can be played
@@ -130,10 +137,11 @@ public class ServerController
             }
         }
 
+        if (location == -1)
+            return false;
         // if location not occupied, make move
         if (game.isFreeCol(location))
         {
-            System.out.println("legal");
             game.makeMove(location); // set move on board
             currentPlayer = (currentPlayer + 1) % 2; // change player
 
@@ -157,12 +165,6 @@ public class ServerController
             return false; // notify player that move was invalid
     }
 
-    // place code in this method to determine whether game over
-    public boolean isGameOver()
-    {
-        return false; // this is left as an exercise
-    }
-
     // private inner class Player manages each Player as a runnable
     private class Player implements Runnable
     {
@@ -170,14 +172,14 @@ public class ServerController
         private Scanner input; // input from client
         private Formatter output; // output to client
         private final int playerNumber; // tracks which player this is
-        private final String mark; // mark for this player
+        private final Color color; // color for this player
         private boolean suspended = true; // whether thread is suspended
 
         // set up Player thread
         public Player(Socket socket, int number)
         {
             playerNumber = number; // store this player's number
-            mark = MARKS[playerNumber]; // specify player's mark
+            color = COLORS[playerNumber]; // specify player's color
             connection = socket; // store socket for client
 
             try // obtain streams from Socket
@@ -203,17 +205,17 @@ public class ServerController
         // control thread's execution
         public void run()
         {
-            // send client its mark (X or O), process messages from client
+            // send client its color (Red or Yellow), process messages from client
             try
             {
-                displayMessage("Player " + mark + " connected\n");
-                output.format("%s\n", mark); // send player's mark
+                displayMessage("Player " + color + " connected\n");
+                output.format("%s\n", color); // send player's color
                 output.flush(); // flush output
 
                 // if player X, wait for another player to arrive
                 if (playerNumber == PLAYER_X)
                 {
-                    output.format("%s\n%s", "Player X connected",
+                    output.format("Server>>> %s\nServer>>> %s", "Player Red connected",
                             "Waiting for another player\n");
                     output.flush(); // flush output
 
@@ -236,33 +238,32 @@ public class ServerController
                     }
 
                     // send message that other player connected
-                    output.format("Other player connected. Your move.\n");
+                    output.format("Server>>> Other player connected. Your move.\n");
                     output.flush(); // flush output
                 }
                 else
                 {
-                    output.format("Player O connected, please wait\n");
+                    output.format("Server>>> Player Yellow connected, please wait\n");
                     output.flush(); // flush output
                 }
 
                 // while game not over
-                while (!isGameOver())
+                while (!game.isWin())
                 {
-                    int location = 0; // initialize move location
+                    int location = -1; // initialize move location
 
                     if (input.hasNext())
                         location = input.nextInt(); // get move location
-
                     // check for valid move
                     if (validateAndMove(location, playerNumber))
                     {
                         displayMessage("\nlocation: " + location);
-                        output.format("Valid move.\n"); // notify client
+                        output.format("Server>>> Valid move.\n"); // notify client
                         output.flush(); // flush output
                     }
                     else // move was invalid
                     {
-                        output.format("Invalid move, try again\n");
+                        output.format("Server>>> Invalid move, try again\n");
                         output.flush(); // flush output
                     }
                 }
@@ -276,7 +277,10 @@ public class ServerController
                 catch (IOException ioException)
                 {
                     ioException.printStackTrace();
-                    System.exit(1);
+                }
+                finally {
+                    displayMessage("Server>>> The " + (game.isRedToMove() ? Color.Yellow : Color.Red) + " player has won the game!\n");
+                    terminate();
                 }
             }
         }
@@ -294,18 +298,3 @@ public class ServerController
         Platform.exit();
     }
 }
-
-/**************************************************************************
- * (C) Copyright 1992-2018 by Deitel & Associates, Inc. and               *
- * Pearson Education, Inc. All Rights Reserved.                           *
- *                                                                        *
- * DISCLAIMER: The authors and publisher of this book have used their     *
- * best efforts in preparing the book. These efforts include the          *
- * development, research, and testing of the theories and programs        *
- * to determine their effectiveness. The authors and publisher make       *
- * no warranty of any kind, expressed or implied, with regard to these    *
- * programs or to the documentation contained in these books. The authors *
- * and publisher shall not be liable in any event for incidental or       *
- * consequential damages in connection with, or arising out of, the       *
- * furnishing, performance, or use of these programs.                     *
- *************************************************************************/

@@ -1,6 +1,7 @@
 package com.gil.connect_four.gui;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -19,12 +20,12 @@ public class Server extends Application {
         Parent root = loader.load();
         ServerController cont = loader.getController();
         stage.setOnCloseRequest((e) -> cont.terminate());
-        cont.execute(); // start the server
 
         Scene scene = new Scene(root);
         stage.setScene(scene);
 
         stage.setTitle("Connect-4 (Server)");
         stage.show();
+        Platform.runLater(cont::execute);
     }
 }

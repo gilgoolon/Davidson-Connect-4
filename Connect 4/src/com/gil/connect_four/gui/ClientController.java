@@ -18,11 +18,11 @@ import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
 import javax.sound.sampled.*;
-import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Formatter;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -56,8 +56,6 @@ public class ClientController implements Runnable{
     private Formatter output; // output to server
     private final String hostname; // host name for server
     private Color myColor; // this client's mark
-    private final String X_MARK = "X"; // mark for first client
-    private final String O_MARK = "O"; // mark for second client
 
 
     public ClientController(){
@@ -94,6 +92,11 @@ public class ClientController implements Runnable{
 
     @FXML
     void sendChatMessage() {
+        displayMessage("You: " + _chatTextField.getText() + "\n");
+
+        // need to send to other player
+
+        _chatTextField.setText("");
     }
 
     @FXML
@@ -130,6 +133,7 @@ public class ClientController implements Runnable{
             Alert a = new Alert(Alert.AlertType.INFORMATION, "Game Over !");
             a.setHeaderText((game.isRedToMove() ? "The yellow " : "The red ") + "player has won the game.");
             a.showAndWait();
+            terminate();
         }
     }
 
@@ -169,11 +173,11 @@ public class ClientController implements Runnable{
                     }
                     else {
                         imaginaryCircle.setOpacity(imaginaryCircleOpc);
-                        if (oldCol == currentMouseCol) { // only update the imaginary circle if the mouse hasn't been moved from the col
-                            if (Game.ROWS - 1 - row - 1 >= 0)
-                                imaginaryCircle.setCenterY((Game.ROWS - 1 - row - 1) * yLeg + yLeg / 2.0);
-                            else imaginaryCircle.setOpacity(0);
-                        }
+//                        if (oldCol == currentMouseCol) { // only update the imaginary circle if the mouse hasn't been moved from the col
+//                            if (Game.ROWS - 1 - row - 1 >= 0)
+//                                imaginaryCircle.setCenterY((Game.ROWS - 1 - row - 1) * yLeg + yLeg / 2.0);
+//                            else imaginaryCircle.setOpacity(0);
+//                        }
                     }
 
                 });
@@ -196,8 +200,7 @@ public class ClientController implements Runnable{
      * @throws UnsupportedAudioFileException when the file isn't of the right type
      */
     private void playSound(String soundFile) throws LineUnavailableException, IOException, UnsupportedAudioFileException {
-        File f = new File("./" + soundFile);
-        AudioInputStream audioIn = AudioSystem.getAudioInputStream(getClass().getResourceAsStream("./assets/" + soundFile));
+        AudioInputStream audioIn = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResourceAsStream("./assets/" + soundFile)));
         Clip clip = AudioSystem.getClip();
         clip.open(audioIn);
         clip.start();
@@ -229,8 +232,10 @@ public class ClientController implements Runnable{
     // control thread that allows continuous update of displayArea
     public void run()
     {
-        myColor = input.nextLine().equals("X") ? Color.Red : Color.Yellow; // get player's mark (X or O)
+        myColor = input.nextLine().equals(Color.Red.toString()) ? Color.Red : Color.Yellow; // get player's mark (X or O)
         imaginaryCircle.setFill(myColor == Color.Red ? javafx.scene.paint.Color.RED : javafx.scene.paint.Color.YELLOW);
+        if (myColor == Color.Yellow)
+            imaginaryCircle.setOpacity(0);
         Platform.runLater(() -> _opponentLabel.setText("You are player \"" + myColor + "\""));
 
         // receive messages sent to client and output them
@@ -244,34 +249,28 @@ public class ClientController implements Runnable{
     // process messages received by client
     private void processMessage(String message)
     {
-        System.out.println(message);
-        // valid move occurred
-        switch (message) {
-            case "Valid move." -> {
-                displayMessage("Valid move, please wait.\n");
-            }
-            case "Invalid move, try again" -> {
-                displayMessage(message + "\n"); // display invalid move
-            }
-            case "Opponent moved" -> {
-                int location = input.nextInt(); // get move location
-                input.nextLine(); // skip newline after int location
-                fallingAnimation(location, game.firstEmpty(location), game.isRedToMove());
-                game.makeMove(location);
-                displayMessage("Opponent moved. Your turn.\n");
+        if (message.equals("Opponent moved")){
+            int location = input.nextInt(); // get move location
+            input.nextLine(); // skip newline after int location
+            fallingAnimation(location, game.firstEmpty(location), game.isRedToMove());
+            game.makeMove(location);
+            displayMessage("Server>>> Opponent moved. Your turn.\n");
 
-                // now check for win
-                if (game.isWin()){
-                    Platform.runLater(() -> {
-                        Alert a = new Alert(Alert.AlertType.INFORMATION, "Game Over !");
-                        a.setHeaderText((game.isRedToMove() ? "The yellow " : "The red ") + "player has won the game.");
-                        a.showAndWait();
-                        terminate();
-                    });
-
-                }
+            // now check for win
+            if (game.isWin()){
+                Platform.runLater(() -> {
+                    Alert a = new Alert(Alert.AlertType.INFORMATION, "Game Over !");
+                    a.setHeaderText((game.isRedToMove() ? "The yellow " : "The red ") + "player has won the game.");
+                    a.showAndWait();
+                    terminate();
+                });
             }
-            default -> displayMessage(message + "\n"); // display the message
+        }
+        else if (message.startsWith("Server>>>")){
+            displayMessage(message + "\n");
+        }
+        else {
+            displayMessage((myColor == Color.Red ? Color.Yellow : Color.Red) + ": " + message + "\n"); // display the message
         }
     }
 
