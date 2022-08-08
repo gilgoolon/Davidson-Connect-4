@@ -89,20 +89,20 @@ public class ClientController implements Runnable{
     }
     @FXML
     void quitPressed() {
-        Platform.exit();
+        terminate();
     }
 
     @FXML
     void sendChatMessage() {
-
     }
 
     @FXML
     void mouseMovedBoard(@NotNull MouseEvent event){
         int newCol = (int)(event.getX()/xLeg);
 
-        if (newCol == currentMouseCol)
+        if (newCol == currentMouseCol || game.isRedToMove() != (myColor == Color.Red))
             return;
+
         currentMouseCol = newCol;
         if (game.isFreeCol(currentMouseCol)){
             imaginaryCircle.setOpacity(imaginaryCircleOpc);
@@ -110,7 +110,6 @@ public class ClientController implements Runnable{
             imaginaryCircle.setCenterY((Game.ROWS-1-game.firstEmpty(newCol))*yLeg + yLeg/2.0);
         } else {
             imaginaryCircle.setOpacity(0);
-            System.out.println("hello");
         }
     }
 
@@ -165,12 +164,18 @@ public class ClientController implements Runnable{
             ft.setOnFinished((event) -> {
                 // update imaginary circle
                 Platform.runLater(()->{
-                    imaginaryCircle.setFill(game.isRedToMove() ? javafx.scene.paint.Color.RED : javafx.scene.paint.Color.YELLOW);
-                    if (oldCol == currentMouseCol) { // only update the imaginary circle if the mouse hasn't been moved from the col
-                        if (Game.ROWS - 1 - row - 1 >= 0)
-                            imaginaryCircle.setCenterY((Game.ROWS - 1 - row - 1) * yLeg + yLeg / 2.0);
-                        else imaginaryCircle.setDisable(true);
+                    if (game.isRedToMove() != (myColor == Color.Red)){
+                        imaginaryCircle.setOpacity(0);
                     }
+                    else {
+                        imaginaryCircle.setOpacity(imaginaryCircleOpc);
+                        if (oldCol == currentMouseCol) { // only update the imaginary circle if the mouse hasn't been moved from the col
+                            if (Game.ROWS - 1 - row - 1 >= 0)
+                                imaginaryCircle.setCenterY((Game.ROWS - 1 - row - 1) * yLeg + yLeg / 2.0);
+                            else imaginaryCircle.setOpacity(0);
+                        }
+                    }
+
                 });
             });
             // play the transitions
