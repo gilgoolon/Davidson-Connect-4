@@ -49,8 +49,10 @@ public class ClientController implements Runnable{
     private final Game game;
     private int currentMouseCol;
     private Circle imaginaryCircle;
+    private Clip playback;
 
     // Networking variables
+    private static final String serverIP = "192.168.1.134"; // Gil's laptop's IP address
     private Socket connection; // connection to server
     private Scanner input; // input from server
     private Formatter output; // output to server
@@ -84,6 +86,16 @@ public class ClientController implements Runnable{
         imaginaryCircle.setOpacity(imaginaryCircleOpc);
         gamePane.getChildren().add(imaginaryCircle);
         imaginaryCircle.toFront();
+
+        // start playing playback sound in loop
+        try {
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResourceAsStream("./assets/" + "playback_music_bicycle.wav")));
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            clip.loop(Clip.LOOP_CONTINUOUSLY); // loop until the program is terminated (game is over)
+            clip.start();
+            playback = clip; // save the clip for later
+        } catch (Exception ignore){}
     }
     @FXML
     void quitPressed() {
@@ -130,6 +142,11 @@ public class ClientController implements Runnable{
         fallingAnimation(currentMouseCol, game.firstEmpty(currentMouseCol), game.isRedToMove());
         game.makeMove(currentMouseCol);
         if (game.isWin()){
+            try {
+                imaginaryCircle.setOpacity(0);
+                playback.stop();
+                playSound("win_horn_sfx.wav");
+            } catch (Exception ignore){}
             Alert a = new Alert(Alert.AlertType.INFORMATION, "Game Over !");
             a.setHeaderText((game.isRedToMove() ? "The yellow " : "The red ") + "player has won the game.");
             a.showAndWait();
@@ -164,7 +181,6 @@ public class ClientController implements Runnable{
             ft.setCycleCount(1);
             ft.setFromValue(0);
             ft.setToValue(1);
-            final int oldCol = currentMouseCol;
             ft.setOnFinished((event) -> {
                 // update imaginary circle
                 Platform.runLater(()->{
@@ -172,12 +188,10 @@ public class ClientController implements Runnable{
                         imaginaryCircle.setOpacity(0);
                     }
                     else {
+                        imaginaryCircle.setCenterX(col*xLeg + xLeg/2.0);
+                        if (row + 1 != Game.ROWS)
+                            imaginaryCircle.setCenterY((Game.ROWS-2-row)*yLeg + yLeg/2.0);
                         imaginaryCircle.setOpacity(imaginaryCircleOpc);
-//                        if (oldCol == currentMouseCol) { // only update the imaginary circle if the mouse hasn't been moved from the col
-//                            if (Game.ROWS - 1 - row - 1 >= 0)
-//                                imaginaryCircle.setCenterY((Game.ROWS - 1 - row - 1) * yLeg + yLeg / 2.0);
-//                            else imaginaryCircle.setOpacity(0);
-//                        }
                     }
 
                 });
@@ -188,7 +202,7 @@ public class ClientController implements Runnable{
         });
 
         try {
-            playSound("disc_fall.wav");
+            playSound("disc_fall_sfx.wav");
         } catch (Exception ignore){}
     }
 
@@ -212,8 +226,7 @@ public class ClientController implements Runnable{
         try // connect to server and get streams
         {
             // make connection to server
-            connection = new Socket(
-                    InetAddress.getByName(hostname), 12345);
+            connection = new Socket(InetAddress.getByName(hostname), 12345);
 
             // get streams for input and output
             input = new Scanner(connection.getInputStream());
@@ -221,7 +234,10 @@ public class ClientController implements Runnable{
         }
         catch (IOException ioException)
         {
-            ioException.printStackTrace();
+            Alert a = new Alert(Alert.AlertType.ERROR, "Connection Error");
+            a.setHeaderText("Please wait for the server to be up and try again.");
+            a.showAndWait();
+            terminate();
         }
 
         // create and start worker thread for this client
@@ -258,7 +274,12 @@ public class ClientController implements Runnable{
 
             // now check for win
             if (game.isWin()){
+                try {
+                    playback.stop();
+                    playSound("lose_horn_sfx.wav");
+                } catch (Exception ignore){}
                 Platform.runLater(() -> {
+                    imaginaryCircle.setOpacity(0);
                     Alert a = new Alert(Alert.AlertType.INFORMATION, "Game Over !");
                     a.setHeaderText((game.isRedToMove() ? "The yellow " : "The red ") + "player has won the game.");
                     a.showAndWait();
