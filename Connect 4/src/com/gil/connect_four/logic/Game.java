@@ -25,6 +25,25 @@ public class Game {
     }
 
     /**
+     * Simple getter function to allow externally checking the value at a specific coordinate
+     * @param x represents the column index
+     * @param y represents the row index
+     * @return the current Color (enum) in the given coordinate
+     */
+    public Color get(int x, int y){
+        return _board[x][y];
+    }
+
+    /**
+     * Simple setter function to allow externally setting the value at a specific coordinate
+     * @param x represents the column index
+     * @param y represents the row index
+     * @param c represents the new color to set in the coordinate
+     */
+    public void set(int x, int y, Color c){
+        _board[x][y] = c;
+    }
+    /**
      * Make a move on the board - place a new disk and flip the turn
      * @param col represents the column to make the move in (assuming the move is legal)
      */
@@ -32,6 +51,15 @@ public class Game {
         int firstEmpty = firstEmpty(col);
         _board[col][firstEmpty] = _redToMove ? Color.Red : Color.Yellow;
         _redToMove = !_redToMove;
+    }
+
+    /**
+     * Unmake the move at the specified column. Assumes the column is not empty
+     * @param col represents the column index of the move to unmake
+     */
+    public void unMakeMove(int col){
+        _board[col][firstEmpty(col)-1] = Color.Empty;
+        _redToMove = ! _redToMove;
     }
 
     /**

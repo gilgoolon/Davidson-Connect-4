@@ -45,7 +45,7 @@ public class ClientController implements Runnable{
     protected static double yLeg;
     protected double padding;
     protected double radius;
-    protected static final double imaginaryCircleOpc = 0.4;
+    protected static final double imaginaryCircleOpc = 0.3;
     private final Game game;
     private int currentMouseCol;
     private Circle imaginaryCircle;
@@ -86,16 +86,6 @@ public class ClientController implements Runnable{
         imaginaryCircle.setOpacity(imaginaryCircleOpc);
         gamePane.getChildren().add(imaginaryCircle);
         imaginaryCircle.toFront();
-
-        // start playing playback sound in loop
-        try {
-            AudioInputStream audioIn = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResourceAsStream("./assets/" + "playback_music_bicycle.wav")));
-            Clip clip = AudioSystem.getClip();
-            clip.open(audioIn);
-            clip.loop(Clip.LOOP_CONTINUOUSLY); // loop until the program is terminated (game is over)
-            clip.start();
-            playback = clip; // save the clip for later
-        } catch (Exception ignore){}
     }
     @FXML
     void quitPressed() {
@@ -243,6 +233,16 @@ public class ClientController implements Runnable{
         // create and start worker thread for this client
         ExecutorService worker = Executors.newFixedThreadPool(1);
         worker.execute(this); // execute client
+
+        // start playing playback sound in loop
+        try {
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResourceAsStream("./assets/" + "playback_music_bicycle.wav")));
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            clip.loop(Clip.LOOP_CONTINUOUSLY); // loop until the program is terminated (game is over)
+            clip.start();
+            playback = clip; // save the clip for later
+        } catch (Exception ignore){}
     }
 
     // control thread that allows continuous update of displayArea
