@@ -135,7 +135,6 @@ public class Engine {
             game.unMakeMove(move);
         }
 
-        System.out.println(eval*SIGN);
         return eval*SIGN; // because the move has been make and turn was changed
     }
 

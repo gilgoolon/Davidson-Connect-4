@@ -66,10 +66,6 @@ public class ServerController
     }
 
     @FXML
-    void initialize(){
-    }
-
-    @FXML
     void sendMessagePressed(){
         displayMessage("Server>>> " + inputTextField.getText() + "\n");
         // need to send to both players

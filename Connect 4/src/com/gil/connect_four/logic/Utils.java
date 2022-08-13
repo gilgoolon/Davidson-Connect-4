@@ -17,9 +17,12 @@ public class Utils {
         while (!game.isWin()){
             if (game.isRedToMove()) // if red to move let the user choose input
                 game.makeMove(getLegalMoveFromStdIn(game));
-            else game.makeMove(Engine.genBestMove(game)); // else make the engine move
-
-            printPos(game);
+            else {
+                int move = Engine.genBestMove(game);
+                game.makeMove(move); // else make the engine move
+                printPos(game);
+                System.out.println("Opponent played: " + move);
+            }
         }
 
         System.out.println("Game Over !");
