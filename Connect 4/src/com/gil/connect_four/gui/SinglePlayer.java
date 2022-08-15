@@ -10,10 +10,11 @@ import java.io.IOException;
 
 public class SinglePlayer extends Application {
     public static void main(String[] args) {
-        launch(args);
+        launch(args); // fxml function - launch application
     }
 
     public void start(Stage stage) throws IOException {
+        // load the FXML file and create an instance controller class
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("fxml/single-player.fxml"));
         Parent root = loader.load();
@@ -21,7 +22,8 @@ public class SinglePlayer extends Application {
         Scene scene = new Scene(root);
         stage.setScene(scene);
 
-        stage.setTitle("Connect-4");
+        // set the title and finally show the application window
+        stage.setTitle("Connect-4 (SinglePlayer)");
         stage.show();
     }
 }

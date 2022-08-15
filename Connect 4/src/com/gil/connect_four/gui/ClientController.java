@@ -38,18 +38,21 @@ public class ClientController implements Runnable{
     @FXML
     private TextArea chatTextArea;
 
-    // Game and GUI variable
-    protected static double width;
-    protected static double height;
-    protected static double xLeg;
-    protected static double yLeg;
-    protected double padding;
-    protected double radius;
-    protected static final double imaginaryCircleOpc = 0.3;
-    private final Game game;
-    private int currentMouseCol;
-    private Circle imaginaryCircle;
-    private Clip playback;
+    // GUI based constants
+    protected static double WIDTH; // width of the board pane - constant and short
+    protected static double HEIGHT; // height of the board pane - constant and short
+    protected static double xLeg; // calculate the width of each cell (disk cell) using fxml components at runtime
+    protected static double yLeg; // calculate the height of each cell (disk cell) using fxml components at runtime
+    protected static double padding; // calculate the padding (how many pixels to reduce from the radius)
+    protected static double radius; // calculate the radius based on cell HEIGHT and WIDTH (minimum/2)
+
+    // calculations/instance variables
+    private final Game game; // logical component - connect 4 game object
+    private Color myColor; // keep track of the user's color (set in the beginning)
+    private int currentMouseCol; // keep track of the current column the mouse is in
+    private Circle imaginaryCircle; // marks the next move (imaginary - dynamic) where the user has his their mouse on
+    private static final double imaginaryCircleOpc = 0.3; // opacity of the imaginary circle
+    private Clip playback; // sound playback - end when the game is over (to not intercept with win\lose sound effects)
 
     // Networking variables
     private static final String serverIP = "192.168.1.134"; // Gil's laptop's IP address
@@ -57,7 +60,6 @@ public class ClientController implements Runnable{
     private Scanner input; // input from server
     private Formatter output; // output to server
     private final String hostname; // host name for server
-    private Color myColor; // this client's mark
 
 
     public ClientController(){
@@ -68,12 +70,12 @@ public class ClientController implements Runnable{
     @FXML
     void initialize(){
         // initialize board variables
-        width = gamePane.getPrefWidth();
-        height = gamePane.getPrefHeight();
-        xLeg = width/Game.COLS;
-        yLeg = height/Game.ROWS;
+        WIDTH = gamePane.getPrefWidth();
+        HEIGHT = gamePane.getPrefHeight();
+        xLeg = WIDTH/Game.COLS;
+        yLeg = HEIGHT/Game.ROWS;
         padding =  5.0;
-        radius = (Math.min(width/Game.COLS,height/Game.ROWS))/2.0-padding;
+        radius = (Math.min(WIDTH/Game.COLS,HEIGHT/Game.ROWS))/2.0-padding;
         // draw white circles
         for (int x = 0; x < Game.COLS; x++){
             for (int y = 0; y < Game.ROWS; y++){
@@ -263,8 +265,7 @@ public class ClientController implements Runnable{
     }
 
     // process messages received by client
-    private void processMessage(String message)
-    {
+    private void processMessage(String message) {
         if (message.equals("Opponent moved")){
             int location = input.nextInt(); // get move location
             input.nextLine(); // skip newline after int location
@@ -296,8 +297,7 @@ public class ClientController implements Runnable{
     }
 
     // manipulate displayArea in event-dispatch thread
-    private void displayMessage(final String messageToDisplay)
-    {
+    private void displayMessage(final String messageToDisplay) {
         Platform.runLater(() -> chatTextArea.appendText(messageToDisplay));
     }
 

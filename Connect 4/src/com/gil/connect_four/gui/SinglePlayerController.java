@@ -24,42 +24,55 @@ import java.util.Objects;
 
 public class SinglePlayerController {
 
+    // GUI - FXML components
     @FXML
-    private Label _opponentLabel;
+    private Label _opponentLabel; // label to display the opponent's color
     @FXML
-    private Pane gamePane;
+    private Pane gamePane; // pane to deal with disks - placing, animations, design and more...
     @FXML
-    private TextArea chatTextArea;
+    private TextArea chatTextArea; // text area to display messages for the user
 
-    // Game and GUI variable
-    protected static double width;
-    protected static double height;
-    protected static double xLeg;
-    protected static double yLeg;
-    protected double padding;
-    protected double radius;
-    protected static final double imaginaryCircleOpc = 0.3;
-    private final Game game;
-    private int currentMouseCol;
-    private Circle imaginaryCircle;
-    private Clip playback;
-    private final Color myColor;
+    // GUI based constants
+    protected static double WIDTH; // width of the board pane - constant and short
+    protected static double HEIGHT; // height of the board pane - constant and short
+    protected static double xLeg; // calculate the width of each cell (disk cell) using fxml components at runtime
+    protected static double yLeg; // calculate the height of each cell (disk cell) using fxml components at runtime
+    protected static double padding; // calculate the padding (how many pixels to reduce from the radius)
+    protected static double radius; // calculate the radius based on cell height and width (minimum/2)
 
+    // calculations/instance variables
+    private final Game game; // logical component - connect 4 game object
+    private final Color myColor; // keep track of the user's color (set in the beginning)
+    private int currentMouseCol; // keep track of the current column the mouse is in
+    private Circle imaginaryCircle; // marks the next move (imaginary - dynamic) where the user has his their mouse on
+    private static final double imaginaryCircleOpc = 0.3; // opacity of the imaginary circle
+    private Clip playback; // sound playback - end when the game is over (to not intercept with win\lose sound effects)
+
+    /**
+     * Override default constructor for the controller class - initialize states and variables not related to the GUI.
+     */
     public SinglePlayerController(){
         game = new Game();
         currentMouseCol = 0;
         myColor = Color.Red;
     }
 
+    /**
+     * This function is a special javafx function that gets called immediately after the "behind the scenes"
+     * setup of the GUI. We use this function to set up the GUI using variable set in the FXML file.
+     * Certain things cannot be accessed in the constructor like the pane height and width (because it is still null
+     * in runtime of construction) and therefore need to wait for the setup of the GUI that occurs behind automatically
+     * behind the scenes using some information from the FXML file.
+     */
     @FXML
     void initialize(){
         // initialize board variables
-        width = gamePane.getPrefWidth();
-        height = gamePane.getPrefHeight();
-        xLeg = width/Game.COLS;
-        yLeg = height/Game.ROWS;
+        WIDTH = gamePane.getPrefWidth();
+        HEIGHT = gamePane.getPrefHeight();
+        xLeg = WIDTH/Game.COLS;
+        yLeg = HEIGHT/Game.ROWS;
         padding =  5.0;
-        radius = (Math.min(width/Game.COLS,height/Game.ROWS))/2.0-padding;
+        radius = (Math.min(xLeg,yLeg))/2.0-padding;
         // draw white circles
         for (int x = 0; x < Game.COLS; x++){
             for (int y = 0; y < Game.ROWS; y++){
@@ -87,11 +100,20 @@ public class SinglePlayerController {
         chatTextArea.appendText("You are playing Red.\nGood luck trying to beat the engine!\n");
     }
 
+    /**
+     * This function gets called when the user presses the "quit" button, terminates the program.
+     */
     @FXML
     void quitPressed() {
         terminate();
     }
 
+    /**
+     * This function gets called every time the mouse is moved on the board. Using the mouse
+     * coordinates, we calculate the current column that the mouse is in and update the
+     * "imaginary circle" if needed.
+     * @param event represents the event of the moving mouse (used to get current mouse coordinates).
+     */
     @FXML
     void mouseMovedBoard(@NotNull MouseEvent event){
         int newCol = (int)(event.getX()/xLeg);
@@ -158,7 +180,7 @@ public class SinglePlayerController {
         ft.setFromValue(0);
         ft.setToValue(1);
         ft.setOnFinished((event) -> {
-            // update imaginary circle
+            // update imaginary circle after the animation is done
             if (game.isRedToMove() != (myColor == Color.Red)){
                 imaginaryCircle.setOpacity(0);
                 int engineMove = Engine.genBestMove(game);

@@ -11,10 +11,11 @@ import java.io.IOException;
 
 public class Server extends Application {
     public static void main(String[] args) {
-        launch(args);
+        launch(args); // fxml function - launch application
     }
 
     public void start(Stage stage) throws IOException {
+        // load the FXML file and create an instance controller class
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("fxml/server.fxml"));
         Parent root = loader.load();
@@ -24,6 +25,7 @@ public class Server extends Application {
         Scene scene = new Scene(root);
         stage.setScene(scene);
 
+        // set the title and finally show the application window
         stage.setTitle("Connect-4 (Server)");
         stage.show();
         Platform.runLater(cont::execute);

@@ -6,6 +6,7 @@ import java.util.Scanner;
 
 public class Utils {
     public static void main(String[] args) {
+        System.out.println("Starting the game");
         playGame();
     }
 
