@@ -6,6 +6,19 @@ import java.util.Random;
 
 public class Engine {
 
+    // position characteristics
+    private final static double CONNECT_2 = 2;
+    private final static double CONNECT_3 = 10;
+    private final static double WIN = Integer.MAX_VALUE;
+    private final static double[][] CENTER_MAP = {
+            {0,1,2,4,2,1,0},
+            {0,1,2,4,2,1,0},
+            {0,1,4,5,4,1,0},
+            {0,2,4,5,4,2,0},
+            {0,1,2,4,2,1,0},
+            {0,0,0,0,0,0,0}
+    };
+
     /**
      * Generate the best move "naively" - using brute force approach
      * @param game represents the current position to generate a move to/from
@@ -16,7 +29,7 @@ public class Engine {
         HashMap<Integer,Double> evaluations = new HashMap<>(); // store the evaluation of each move in a map
         for (int move : legal_moves) { // calculate and store the eval of each move
             game.makeMove(move);
-            evaluations.put(move, alphaBetaPruning(game,7,curr,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY));
+            evaluations.put(move, alphaBetaPruning(game, move, 10,curr,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY));
             game.unMakeMove(move);
         }
 
@@ -43,54 +56,18 @@ public class Engine {
         return best_move;
     }
 
-    private static double alphaBetaPruning(Game game, int depth, Color current, double alpha, double beta){
-        System.out.println(depth);
-        List<Integer> legal_moves = Utils.genLegalMoves(game);
-
-        if (legal_moves.isEmpty() || depth == 0) // leaf node
-            return evaluate(game);
-
-        double bestVal;
-        if (current == Color.Red){
-            bestVal = Double.NEGATIVE_INFINITY;
-            for (int move : legal_moves){
-                game.makeMove(move);
-                double value = alphaBetaPruning(game,depth-1, Utils.opColor(current),alpha,beta);
-                game.unMakeMove(move);
-                bestVal = Math.max(bestVal,value);
-                alpha = Math.max(alpha,bestVal);
-                if (beta <= alpha)
-                    break;
-            }
-        }
-        else { // yellow - minimize value
-            bestVal = Double.POSITIVE_INFINITY;
-            for (int move : legal_moves){
-                game.makeMove(move);
-                double value = alphaBetaPruning(game,depth-1, Utils.opColor(current),alpha,beta);
-                game.unMakeMove(move);
-                bestVal = Math.min(bestVal,value);
-                beta = Math.min(beta,bestVal);
-                if (beta <= alpha)
-                    break;
-            }
-        }
-        return bestVal;
-    }
-
     private static double alphaBetaPruning(Game game, int lastMove, int depth, Color current, double alpha, double beta){
-        System.out.println(depth);
         List<Integer> legal_moves = Utils.genLegalMoves(game);
 
         if (legal_moves.isEmpty() || depth == 0) // leaf node
-            return evaluate(game,lastMove);
+            return evaluate(game, lastMove);
 
         double bestVal;
-        if (current == Color.Red){
+        if (current == Color.Yellow){
             bestVal = Double.NEGATIVE_INFINITY;
             for (int move : legal_moves){
                 game.makeMove(move);
-                double value = alphaBetaPruning(game,move,depth-1, Utils.opColor(current),alpha,beta);
+                double value = alphaBetaPruning(game, move,depth-1, Utils.opColor(current),alpha,beta);
                 game.unMakeMove(move);
                 bestVal = Math.max(bestVal,value);
                 alpha = Math.max(alpha,bestVal);
@@ -102,7 +79,7 @@ public class Engine {
             bestVal = Double.POSITIVE_INFINITY;
             for (int move : legal_moves){
                 game.makeMove(move);
-                double value = alphaBetaPruning(game,move,depth-1, Utils.opColor(current),alpha,beta);
+                double value = alphaBetaPruning(game, lastMove, depth-1, Utils.opColor(current),alpha,beta);
                 game.unMakeMove(move);
                 bestVal = Math.min(bestVal,value);
                 beta = Math.min(beta,bestVal);
@@ -121,104 +98,14 @@ public class Engine {
      * @return a double representing the evaluation of the given position
      */
     private static double evaluate(Game game, int col){
-        // good characteristics
-        final double CONNECT_2 = 2;
-        final double CONNECT_3 = 5;
-        final double CENTER = 4;
-        final double WIN = Integer.MAX_VALUE;
-
-        // bad characteristics
-        final double OPP_CONNECT_2 = -3;
-        final double OPP_CONNECT_3 = -10;
-        final double OPP_WIN = -WIN;
-
-        // initializations
-        final int SIGN = game.isRedToMove() ? -1 : 1;
-        final int row = game.firstEmpty(col) - 1;
-        double eval = 0;
-
-        // evaluating all possibilities and giving score
-
-        // center col
-        if (col == Game.COLS/2)
-            eval += CENTER;
-
-        // checking rows
-        int consRow = getConsecutive(game,col,row,0,1,0);
-        if (consRow >= 4)
-            return WIN*SIGN;
-        else if (consRow == 3)
-            eval+=CONNECT_3;
-        else if (consRow == 2)
-            eval+=CONNECT_2;
-
-        // checking columns
-        int consCol = getConsecutive(game,col,row,0,0,1);
-        if (consCol >= 4)
-            return WIN*SIGN;
-        else if (consCol == 3)
-            eval+=CONNECT_3;
-        else if (consCol == 2)
-            eval+=CONNECT_2;
-
-        // checking up-right diagonal
-        int consUR = getConsecutive(game,col,row,0,1,1);
-        if (consUR >= 4)
-            return WIN*SIGN;
-        else if (consUR == 3)
-            eval+=CONNECT_3;
-        else if (consUR == 2)
-            eval+=CONNECT_2;
-
-        // checking up-left diagonal
-        int consUL = getConsecutive(game,col,row,0,1,-1);
-        if (consUL >= 4)
-            return WIN*SIGN;
-        else if (consUL == 3)
-            eval+=CONNECT_3;
-        else if (consUL == 2)
-            eval+=CONNECT_2;
-
-        
-        List<Integer> op_moves = Utils.genLegalMoves(game);
-        for (int move : op_moves) {
-            game.makeMove(move);
-            // checking opposite winnable connect 3 (opponent)
-            if (game.isWin())
-                eval += OPP_WIN;
-            if (getConsecutive(game,move,game.firstEmpty(move)-1,0,1,0) == 3)
-                eval+= OPP_CONNECT_3;
-            if(getConsecutive(game,move,game.firstEmpty(move)-1,0,0,1) == 3)
-                eval+= OPP_CONNECT_3;
-            if (getConsecutive(game,move,game.firstEmpty(move)-1,0,1,1) == 3)
-                eval+= OPP_CONNECT_3;
-            if(getConsecutive(game,move,game.firstEmpty(move)-1,0,-1,1) == 3)
-                eval+= OPP_CONNECT_3;
-            if (getConsecutive(game,move,game.firstEmpty(move)-1,0,1,0) == 2)
-                eval+= OPP_CONNECT_2;
-            if(getConsecutive(game,move,game.firstEmpty(move)-1,0,0,1) == 2)
-                eval+= OPP_CONNECT_2;
-            if (getConsecutive(game,move,game.firstEmpty(move)-1,0,1,1) == 2)
-                eval+= OPP_CONNECT_2;
-            if(getConsecutive(game,move,game.firstEmpty(move)-1,0,-1,1) == 2)
-                eval+= OPP_CONNECT_2;
-            game.unMakeMove(move);
-        }
-
-        return eval*SIGN; // because the move has been make and turn was changed
-    }
-
-    private static double evaluate(Game game){
-        // position characteristics
-        final double CONNECT_2 = 2;
-        final double CONNECT_3 = 10;
-        final double WIN = Integer.MAX_VALUE;
-
         // initializations
         Color curr = game.isRedToMove() ? Color.Yellow : Color.Red;
         int sign = game.isRedToMove() ? -1 : 1;
+        final int row = game.firstEmpty(col)-1;
+        System.out.println(row);
         double eval = 0.0;
 
+        eval += CENTER_MAP[row][col];
         // horizontal check
         for (int y = 0; y < Game.ROWS; y++){
             for (int x = 0; x + 3 < Game.COLS; x++){
@@ -306,7 +193,6 @@ public class Engine {
                 }
             }
         }
-
 
         return eval*sign;
     }
