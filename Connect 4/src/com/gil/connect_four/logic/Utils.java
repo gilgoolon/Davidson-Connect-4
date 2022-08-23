@@ -1,8 +1,6 @@
 package com.gil.connect_four.logic;
 
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.Scanner;
+import java.util.*;
 
 public class Utils {
     public static void main(String[] args) {
@@ -19,7 +17,7 @@ public class Utils {
             if (game.isRedToMove()) // if red to move let the user choose input
                 game.makeMove(getLegalMoveFromStdIn(game));
             else {
-                int move = Engine.genBestMove(game);
+                int move = Engine.genBestMove(game,Color.Yellow);
                 game.makeMove(move); // else make the engine move
                 printPos(game);
                 System.out.println("Opponent played: " + move);
@@ -48,7 +46,9 @@ public class Utils {
      * @param game represents the current position
      * @return an arraylist containing all possible moves
      */
-    public static ArrayList<Integer> genLegalMoves(Game game){
+    public static List<Integer> genLegalMoves(Game game){
+        if (game.isWin())
+            return Collections.emptyList();
         ArrayList<Integer> moves = new ArrayList<>();
         for (int i = 0; i < Game.COLS; i++)
             if (game.isFreeCol(i))

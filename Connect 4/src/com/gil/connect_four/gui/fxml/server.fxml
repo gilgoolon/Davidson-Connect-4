@@ -4,26 +4,28 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gil.connect_four.gui.ServerController">
-   <children>
-      <BorderPane prefHeight="400.0" prefWidth="600.0">
-         <top>
-            <Label text="Server Logs" textAlignment="CENTER" BorderPane.alignment="CENTER">
-               <font>
-                  <Font name="Calibri" size="18.0" />
-               </font>
-            </Label>
-         </top>
-         <center>
-            <TextArea fx:id="outputArea" editable="false" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
-         </center>
-         <bottom>
-            <TextField fx:id="inputTextField" onAction="#sendMessagePressed" promptText="Send a message..." BorderPane.alignment="CENTER">
-               <font>
-                  <Font name="System Italic" size="16.0" />
-               </font>
-            </TextField>
-         </bottom>
-      </BorderPane>
-   </children>
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
+      prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.gil.connect_four.gui.ServerController">
+   <BorderPane prefHeight="400.0" prefWidth="600.0">
+      <top>
+         <Label text="Server Logs" textAlignment="CENTER" BorderPane.alignment="CENTER">
+            <font>
+               <Font name="Calibri" size="18.0"/>
+            </font>
+         </Label>
+      </top>
+      <center>
+         <TextArea fx:id="_outputArea" editable="false" prefHeight="200.0" prefWidth="200.0"
+                   BorderPane.alignment="CENTER"/>
+      </center>
+      <bottom>
+         <TextField fx:id="_inputTextField" onAction="#sendMessagePressed" promptText="Send a message..."
+                    BorderPane.alignment="CENTER">
+            <font>
+               <Font name="System Italic" size="16.0"/>
+            </font>
+         </TextField>
+      </bottom>
+   </BorderPane>
 </Pane>

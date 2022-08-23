@@ -21,10 +21,10 @@ import java.util.concurrent.locks.Condition;
 public class ServerController
 {
     @FXML
-    private TextArea outputArea;
+    private TextArea _outputArea;
 
     @FXML
-    private TextField inputTextField;
+    private TextField _inputTextField;
 
     private final Game game;
     private final Player[] players; // array of Players
@@ -67,10 +67,10 @@ public class ServerController
 
     @FXML
     void sendMessagePressed(){
-        displayMessage("Server>>> " + inputTextField.getText() + "\n");
+        displayMessage("Server>>> " + _inputTextField.getText() + "\n");
         // need to send to both players
 
-        inputTextField.setText("");
+        _inputTextField.setText("");
     }
 
     // wait for two connections so game can be played
@@ -104,11 +104,11 @@ public class ServerController
         }
     }
 
-    // display message in outputArea
+    // display message in _outputArea
     private void displayMessage(final String messageToDisplay)
     {
         // display message from event-dispatch thread of execution
-        Platform.runLater(() -> outputArea.appendText(messageToDisplay));
+        Platform.runLater(() -> _outputArea.appendText(messageToDisplay));
     }
 
     // determine if move is valid

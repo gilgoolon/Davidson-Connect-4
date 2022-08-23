@@ -28,9 +28,9 @@ public class SinglePlayerController {
     @FXML
     private Label _opponentLabel; // label to display the opponent's color
     @FXML
-    private Pane gamePane; // pane to deal with disks - placing, animations, design and more...
+    private Pane _gamePane; // pane to deal with disks - placing, animations, design and more...
     @FXML
-    private TextArea chatTextArea; // text area to display messages for the user
+    private TextArea _chatTextArea; // text area to display messages for the user
 
     // GUI based constants
     protected static double WIDTH; // width of the board pane - constant and short
@@ -67,8 +67,8 @@ public class SinglePlayerController {
     @FXML
     void initialize(){
         // initialize board variables
-        WIDTH = gamePane.getPrefWidth();
-        HEIGHT = gamePane.getPrefHeight();
+        WIDTH = _gamePane.getPrefWidth();
+        HEIGHT = _gamePane.getPrefHeight();
         xLeg = WIDTH/Game.COLS;
         yLeg = HEIGHT/Game.ROWS;
         padding =  5.0;
@@ -77,13 +77,13 @@ public class SinglePlayerController {
         for (int x = 0; x < Game.COLS; x++){
             for (int y = 0; y < Game.ROWS; y++){
                 Circle circle = new Circle(x*xLeg+xLeg/2.0,y*yLeg + yLeg/2.0,radius, javafx.scene.paint.Color.WHITE);
-                gamePane.getChildren().add(circle);
+                _gamePane.getChildren().add(circle);
             }
         }
 
         imaginaryCircle = new Circle(xLeg/2.0,(Game.ROWS-1)*yLeg+yLeg/2.0,radius,game.isRedToMove() ? javafx.scene.paint.Color.RED : javafx.scene.paint.Color.YELLOW);
         imaginaryCircle.setOpacity(imaginaryCircleOpc);
-        gamePane.getChildren().add(imaginaryCircle);
+        _gamePane.getChildren().add(imaginaryCircle);
         imaginaryCircle.toFront();
 
         // start playing playback sound in loop
@@ -97,7 +97,7 @@ public class SinglePlayerController {
         } catch (Exception ignore){}
 
         _opponentLabel.setText("Opponent: " + Utils.opColor(myColor));
-        chatTextArea.appendText("You are playing Red.\nGood luck trying to beat the engine!\n");
+        _chatTextArea.appendText("You are playing Red.\nGood luck trying to beat the engine!\n");
     }
 
     /**
@@ -142,15 +142,6 @@ public class SinglePlayerController {
 
         fallingAnimation(currentMouseCol, game.firstEmpty(currentMouseCol), game.isRedToMove());
         game.makeMove(currentMouseCol);
-        if (game.isWin()){
-            try {
-                imaginaryCircle.setOpacity(0);
-                playback.stop();
-                playSound("win_horn_sfx.wav");
-            } catch (Exception ignore){}
-            gameOver();
-            terminate();
-        }
     }
 
     /**
@@ -161,7 +152,7 @@ public class SinglePlayerController {
      */
     private void fallingAnimation(int col, int row, boolean redColor){
         Circle circle = new Circle(col*xLeg + xLeg/2.0, 0, radius,redColor ? javafx.scene.paint.Color.RED : javafx.scene.paint.Color.YELLOW);
-        gamePane.getChildren().add(circle);
+        _gamePane.getChildren().add(circle);
         circle.toFront();
         TranslateTransition trans = new TranslateTransition(Duration.millis(300), circle);
         trans.setFromY(circle.getLayoutX());
@@ -171,7 +162,11 @@ public class SinglePlayerController {
         trans.setInterpolator(new Interpolator() {
             @Override
             protected double curve(double v) {
-                return v*v*v; // v^2*g/2 - like physics equation x(t)=a/2*t^2+vt+h
+                // v^2*g/2 - like physics equation x(t)=a/2*t^2+vt+h
+                double val = v*v*2;
+                if (val >= 1)
+                    return 1;
+                return val;
             }
         });
         FadeTransition ft = new FadeTransition(Duration.millis(300), circle);
@@ -182,10 +177,37 @@ public class SinglePlayerController {
         ft.setOnFinished((event) -> {
             // update imaginary circle after the animation is done
             if (game.isRedToMove() != (myColor == Color.Red)){
+                if (game.isWin()){
+                    try {
+                        imaginaryCircle.setOpacity(0);
+                        playback.stop();
+                        playSound("win_horn_sfx.wav");
+                    } catch (Exception ignore){}
+
+                    Platform.runLater(() ->{
+                        gameOver();
+                        terminate();
+                    });
+                    return;
+                }
                 imaginaryCircle.setOpacity(0);
-                int engineMove = Engine.genBestMove(game);
+                int engineMove = Engine.genBestMove(game,Utils.opColor(myColor));
                 fallingAnimation(engineMove, game.firstEmpty(engineMove), game.isRedToMove());
                 game.makeMove(engineMove);
+                if (game.isWin()){
+                    try {
+                        imaginaryCircle.setOpacity(0);
+                        playback.stop();
+                        playSound("lose_horn_sfx.wav");
+                    } catch (Exception ignore){}
+
+                    Platform.runLater(() -> {
+                        gameOver();
+                        terminate();
+                    });
+                    return;
+
+                }
                 if (engineMove == col) {
                     if (row + 2 != Game.ROWS) {
                         imaginaryCircle.setCenterY((Game.ROWS - 3 - row) * yLeg + yLeg / 2.0);
@@ -195,14 +217,7 @@ public class SinglePlayerController {
                         imaginaryCircle.setCenterY((Game.ROWS-2-row)*yLeg + yLeg/2.0);
                 }
                 imaginaryCircle.setOpacity(imaginaryCircleOpc);
-                if (game.isWin()){
-                    try {
-                        imaginaryCircle.setOpacity(0);
-                        playback.stop();
-                        playSound("win_horn_sfx.wav");
-                    } catch (Exception ignore){}
-                    gameOver();
-                }
+
             }
         });
         // play the transitions
@@ -232,12 +247,9 @@ public class SinglePlayerController {
      * End the game including prompting who won the game
      */
     private void gameOver(){
-        Platform.runLater(() -> {
-            Alert a = new Alert(Alert.AlertType.INFORMATION, "Game Over !");
-            a.setHeaderText((game.isRedToMove() ? "The yellow " : "The red ") + "player has won the game.");
-            a.showAndWait();
-            terminate();
-        });
+        Alert a = new Alert(Alert.AlertType.INFORMATION, "Game Over !");
+        a.setHeaderText((game.isRedToMove() ? "The yellow " : "The red ") + "player has won the game.");
+        a.showAndWait();
     }
 
     /**

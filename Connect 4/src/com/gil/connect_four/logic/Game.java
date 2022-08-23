@@ -1,5 +1,7 @@
 package com.gil.connect_four.logic;
+
 public class Game {
+
     public static final int ROWS = 6; // constant variable for number of rows
     public static final int COLS = 7; // constant variable for number of columns
     private final Color[][] _board; // matrix storing a custom enum (Red 1, Yellow -1, Empty 0)
@@ -43,6 +45,7 @@ public class Game {
     public void set(int x, int y, Color c){
         _board[x][y] = c;
     }
+
     /**
      * Make a move on the board - place a new disk and flip the turn
      * @param col represents the column to make the move in (assuming the move is legal)
@@ -68,7 +71,7 @@ public class Game {
      * @return true if the given column is free, false otherwise
      */
     public boolean isFreeCol(int col){
-        return firstEmpty(col) != ROWS;
+        return _board[col][Game.ROWS-1] == Color.Empty;
     }
 
     /**
@@ -92,7 +95,7 @@ public class Game {
         // horizontal check
         for (int y = 0; y < ROWS; y++){
             for (int x = 0; x + 3 < COLS; x++){
-                if (_board[x][y] != Color.Empty && _board[x][y] == _board[x+1][y] && _board[x][y] == _board[x+2][y] && _board[x][y] == _board[x+3][y])
+                if (count(x,y, x+3, y, _redToMove ? Color.Yellow : Color.Red) == 4)
                     return true;
             }
         }
@@ -100,7 +103,7 @@ public class Game {
         // vertical check
         for (int x = 0; x < COLS; x++){
             for (int y = 0; y + 3 < ROWS; y++){
-                if (_board[x][y] != Color.Empty && _board[x][y] == _board[x][y+1] && _board[x][y] == _board[x][y+2] && _board[x][y] == _board[x][y+3])
+                if (count(x,y, x, y+3, _redToMove ? Color.Yellow : Color.Red) == 4)
                     return true;
             }
         }
@@ -108,7 +111,7 @@ public class Game {
         // diagonal (up-right) check
         for (int x = 0; x + 3 < COLS; x++){
             for (int y = 0; y + 3 < ROWS; y++){
-                if (_board[x][y] != Color.Empty && _board[x][y] == _board[x+1][y+1] && _board[x][y] == _board[x+2][y+2] && _board[x][y] == _board[x+3][y+3])
+                if (count(x,y, x+3, y+3, _redToMove ? Color.Yellow : Color.Red) == 4)
                     return true;
             }
         }
@@ -116,11 +119,29 @@ public class Game {
         // diagonal (up-left) check
         for (int x = 0; x + 3 < COLS; x++){
             for (int y = ROWS-1; y - 3 >= 0; y--){
-                if (_board[x][y] != Color.Empty && _board[x][y] == _board[x+1][y-1] && _board[x][y] == _board[x+2][y-2] && _board[x][y] == _board[x+3][y-3])
+                if (count(x,y, x+3, y-3, _redToMove ? Color.Yellow : Color.Red) == 4)
                     return true;
             }
         }
 
         return false;
+    }
+
+    public int count(int x1, int y1, int x2, int y2, Color c){
+        int incX = Integer.compare(x2, x1);
+        int incY = Integer.compare(y2, y1);
+
+        Color[] toCount = new Color[4];
+        for (int i = 0; i < toCount.length; i++)
+            toCount[i] = _board[x1 + incX * i][y1 + incY * i];
+        return count(toCount, c);
+    }
+
+    public static int count(Color [] arr, Color c){
+        int sum = 0;
+        for (Color x : arr)
+            if (x == c)
+                sum++;
+        return sum;
     }
 }

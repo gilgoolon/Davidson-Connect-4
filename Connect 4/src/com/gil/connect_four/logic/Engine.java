@@ -1,7 +1,7 @@
 package com.gil.connect_four.logic;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 public class Engine {
@@ -11,12 +11,12 @@ public class Engine {
      * @param game represents the current position to generate a move to/from
      * @return the column number of the generated move
      */
-    public static int genBestMove(Game game){
-        ArrayList<Integer> legal_moves = Utils.genLegalMoves(game); // generating the legal moves
+    public static int genBestMove(Game game, Color curr){
+        List<Integer> legal_moves = Utils.genLegalMoves(game); // generating the legal moves
         HashMap<Integer,Double> evaluations = new HashMap<>(); // store the evaluation of each move in a map
         for (int move : legal_moves) { // calculate and store the eval of each move
             game.makeMove(move);
-            evaluations.put(move, evaluate(game, move));
+            evaluations.put(move, alphaBetaPruning(game,7,curr,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY));
             game.unMakeMove(move);
         }
 
@@ -41,6 +41,76 @@ public class Engine {
         }
 
         return best_move;
+    }
+
+    private static double alphaBetaPruning(Game game, int depth, Color current, double alpha, double beta){
+        System.out.println(depth);
+        List<Integer> legal_moves = Utils.genLegalMoves(game);
+
+        if (legal_moves.isEmpty() || depth == 0) // leaf node
+            return evaluate(game);
+
+        double bestVal;
+        if (current == Color.Red){
+            bestVal = Double.NEGATIVE_INFINITY;
+            for (int move : legal_moves){
+                game.makeMove(move);
+                double value = alphaBetaPruning(game,depth-1, Utils.opColor(current),alpha,beta);
+                game.unMakeMove(move);
+                bestVal = Math.max(bestVal,value);
+                alpha = Math.max(alpha,bestVal);
+                if (beta <= alpha)
+                    break;
+            }
+        }
+        else { // yellow - minimize value
+            bestVal = Double.POSITIVE_INFINITY;
+            for (int move : legal_moves){
+                game.makeMove(move);
+                double value = alphaBetaPruning(game,depth-1, Utils.opColor(current),alpha,beta);
+                game.unMakeMove(move);
+                bestVal = Math.min(bestVal,value);
+                beta = Math.min(beta,bestVal);
+                if (beta <= alpha)
+                    break;
+            }
+        }
+        return bestVal;
+    }
+
+    private static double alphaBetaPruning(Game game, int lastMove, int depth, Color current, double alpha, double beta){
+        System.out.println(depth);
+        List<Integer> legal_moves = Utils.genLegalMoves(game);
+
+        if (legal_moves.isEmpty() || depth == 0) // leaf node
+            return evaluate(game,lastMove);
+
+        double bestVal;
+        if (current == Color.Red){
+            bestVal = Double.NEGATIVE_INFINITY;
+            for (int move : legal_moves){
+                game.makeMove(move);
+                double value = alphaBetaPruning(game,move,depth-1, Utils.opColor(current),alpha,beta);
+                game.unMakeMove(move);
+                bestVal = Math.max(bestVal,value);
+                alpha = Math.max(alpha,bestVal);
+                if (beta <= alpha)
+                    break;
+            }
+        }
+        else { // yellow - minimize value
+            bestVal = Double.POSITIVE_INFINITY;
+            for (int move : legal_moves){
+                game.makeMove(move);
+                double value = alphaBetaPruning(game,move,depth-1, Utils.opColor(current),alpha,beta);
+                game.unMakeMove(move);
+                bestVal = Math.min(bestVal,value);
+                beta = Math.min(beta,bestVal);
+                if (beta <= alpha)
+                    break;
+            }
+        }
+        return bestVal;
     }
 
     /**
@@ -110,7 +180,7 @@ public class Engine {
             eval+=CONNECT_2;
 
         
-        ArrayList<Integer> op_moves = Utils.genLegalMoves(game);
+        List<Integer> op_moves = Utils.genLegalMoves(game);
         for (int move : op_moves) {
             game.makeMove(move);
             // checking opposite winnable connect 3 (opponent)
@@ -136,6 +206,109 @@ public class Engine {
         }
 
         return eval*SIGN; // because the move has been make and turn was changed
+    }
+
+    private static double evaluate(Game game){
+        // position characteristics
+        final double CONNECT_2 = 2;
+        final double CONNECT_3 = 10;
+        final double WIN = Integer.MAX_VALUE;
+
+        // initializations
+        Color curr = game.isRedToMove() ? Color.Yellow : Color.Red;
+        int sign = game.isRedToMove() ? -1 : 1;
+        double eval = 0.0;
+
+        // horizontal check
+        for (int y = 0; y < Game.ROWS; y++){
+            for (int x = 0; x + 3 < Game.COLS; x++){
+                int countG = game.count(x,y, x+3, y, curr);
+                int countE = game.count(x,y, x+3, y, Color.Empty);
+                if (countG == 4)
+                    return WIN*sign;
+                else if (countG == 3 && countE == 1)
+                    eval += CONNECT_3;
+                else if (countG == 2 && countE == 2)
+                    eval += CONNECT_2;
+                else if (countG == 0){
+                    if (countE == 0)
+                        return -WIN*sign;
+                    else if (countE == 1)
+                        eval -= CONNECT_3;
+                    else if (countE == 2)
+                        eval -= CONNECT_2;
+                }
+            }
+        }
+
+        // vertical check
+        for (int x = 0; x < Game.COLS; x++){
+            for (int y = 0; y + 3 < Game.ROWS; y++){
+                int countG = game.count(x,y,x,y+3, curr);
+                int countE = game.count(x,y,x,y+3, Color.Empty);
+                if (countG == 4)
+                    return WIN*sign;
+                else if (countG == 3 && countE == 1)
+                    eval += CONNECT_3;
+                else if (countG == 2 && countE == 2)
+                    eval += CONNECT_2;
+                else if (countG == 0){
+                    if (countE == 0)
+                        return -WIN*sign;
+                    else if (countE == 1)
+                        eval -= CONNECT_3;
+                    else if (countE == 2)
+                        eval -= CONNECT_2;
+                }
+            }
+        }
+
+        // diagonal (up-right) check
+        for (int x = 0; x + 3 < Game.COLS; x++){
+            for (int y = 0; y + 3 < Game.ROWS; y++){
+                int countG = game.count(x,y, x+3, y+3, curr);
+                int countE = game.count(x,y, x+3, y+3, Color.Empty);
+                if (countG == 4)
+                    return WIN*sign;
+                else if (countG == 3 && countE == 1)
+                    eval += CONNECT_3;
+                else if (countG == 2 && countE == 2)
+                    eval += CONNECT_2;
+                else if (countG == 0){
+                    if (countE == 0)
+                        return -WIN*sign;
+                    else if (countE == 1)
+                        eval -= CONNECT_3;
+                    else if (countE == 2)
+                        eval -= CONNECT_2;
+                }
+            }
+        }
+
+        // diagonal (up-left) check
+        for (int x = 0; x + 3 < Game.COLS; x++){
+            for (int y = Game.ROWS-1; y - 3 >= 0; y--){
+                int countG = game.count(x,y, x+3, y-3, curr);
+                int countE = game.count(x,y, x+3, y-3, Color.Empty);
+                if (countG == 4)
+                    return WIN*sign;
+                else if (countG == 3 && countE == 1)
+                    eval += CONNECT_3;
+                else if (countG == 2 && countE == 2)
+                    eval += CONNECT_2;
+                else if (countG == 0){
+                    if (countE == 0)
+                        return -WIN*sign;
+                    else if (countE == 1)
+                        eval -= CONNECT_3;
+                    else if (countE == 2)
+                        eval -= CONNECT_2;
+                }
+            }
+        }
+
+
+        return eval*sign;
     }
 
     /**
@@ -173,7 +346,7 @@ public class Engine {
      * @return the column number of the move
      */
     public static int genRandomMove(Game game){
-        ArrayList<Integer> moves = Utils.genLegalMoves(game);
+        List<Integer> moves = Utils.genLegalMoves(game);
         Random r = new Random();
         return moves.get(r.nextInt(moves.size()));
     }

@@ -34,9 +34,9 @@ public class ClientController implements Runnable{
     @FXML
     private Label _opponentLabel;
     @FXML
-    private Pane gamePane;
+    private Pane _gamePane;
     @FXML
-    private TextArea chatTextArea;
+    private TextArea _chatTextArea;
 
     // GUI based constants
     protected static double WIDTH; // width of the board pane - constant and short
@@ -70,8 +70,8 @@ public class ClientController implements Runnable{
     @FXML
     void initialize(){
         // initialize board variables
-        WIDTH = gamePane.getPrefWidth();
-        HEIGHT = gamePane.getPrefHeight();
+        WIDTH = _gamePane.getPrefWidth();
+        HEIGHT = _gamePane.getPrefHeight();
         xLeg = WIDTH/Game.COLS;
         yLeg = HEIGHT/Game.ROWS;
         padding =  5.0;
@@ -80,13 +80,13 @@ public class ClientController implements Runnable{
         for (int x = 0; x < Game.COLS; x++){
             for (int y = 0; y < Game.ROWS; y++){
                 Circle circle = new Circle(x*xLeg+xLeg/2.0,y*yLeg + yLeg/2.0,radius, javafx.scene.paint.Color.WHITE);
-                gamePane.getChildren().add(circle);
+                _gamePane.getChildren().add(circle);
             }
         }
 
         imaginaryCircle = new Circle(xLeg/2.0,(Game.ROWS-1)*yLeg+yLeg/2.0,radius,game.isRedToMove() ? javafx.scene.paint.Color.RED : javafx.scene.paint.Color.YELLOW);
         imaginaryCircle.setOpacity(imaginaryCircleOpc);
-        gamePane.getChildren().add(imaginaryCircle);
+        _gamePane.getChildren().add(imaginaryCircle);
         imaginaryCircle.toFront();
     }
     @FXML
@@ -155,7 +155,7 @@ public class ClientController implements Runnable{
     private void fallingAnimation(int col, int row, boolean redColor){
         Platform.runLater(() ->{
             Circle circle = new Circle(col*xLeg + xLeg/2.0, 0, radius,redColor ? javafx.scene.paint.Color.RED : javafx.scene.paint.Color.YELLOW);
-            gamePane.getChildren().add(circle);
+            _gamePane.getChildren().add(circle);
             circle.toFront();
             TranslateTransition trans = new TranslateTransition(Duration.millis(300), circle);
             trans.setFromY(circle.getLayoutX());
@@ -165,7 +165,11 @@ public class ClientController implements Runnable{
             trans.setInterpolator(new Interpolator() {
                 @Override
                 protected double curve(double v) {
-                    return v*v*v; // v^2*g/2 - like physics equation x(t)=a/2*t^2+vt+h
+                    // v^2*g/2 - like physics equation x(t)=a/2*t^2+vt+h
+                    double val = v*v*2;
+                    if (val >= 1)
+                        return 1;
+                    return val;
                 }
             });
             FadeTransition ft = new FadeTransition(Duration.millis(300), circle);
@@ -298,7 +302,7 @@ public class ClientController implements Runnable{
 
     // manipulate displayArea in event-dispatch thread
     private void displayMessage(final String messageToDisplay) {
-        Platform.runLater(() -> chatTextArea.appendText(messageToDisplay));
+        Platform.runLater(() -> _chatTextArea.appendText(messageToDisplay));
     }
 
     public void terminate(){
