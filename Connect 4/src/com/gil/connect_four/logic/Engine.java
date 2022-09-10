@@ -7,16 +7,16 @@ import java.util.Random;
 public class Engine {
 
     // position characteristics
-    private final static double CONNECT_2 = 2;
-    private final static double CONNECT_3 = 10;
+    private final static double CONNECT_2 = 1;
+    private final static double CONNECT_3 = 5;
     private final static double WIN = Integer.MAX_VALUE;
     private final static double[][] CENTER_MAP = {
-            {0,1,2,4,2,1,0},
-            {0,1,2,4,2,1,0},
-            {0,1,4,5,4,1,0},
-            {0,2,4,5,4,2,0},
-            {0,1,2,4,2,1,0},
-            {0,0,0,0,0,0,0}
+            {0,1,1,5,1,1,0},
+            {0,1,1,5,1,1,0},
+            {0,1,1,5,1,1,0},
+            {0,1,2,5,2,1,0},
+            {0,1,2,5,2,1,0},
+            {0,0,1,5,1,0,0}
     };
 
     /**
@@ -29,7 +29,7 @@ public class Engine {
         HashMap<Integer,Double> evaluations = new HashMap<>(); // store the evaluation of each move in a map
         for (int move : legal_moves) { // calculate and store the eval of each move
             game.makeMove(move);
-            evaluations.put(move, alphaBetaPruning(game, move, 10,curr,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY));
+            evaluations.put(move, alphaBetaPruning(game, move, 9,curr,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY));
             game.unMakeMove(move);
         }
 
@@ -52,7 +52,6 @@ public class Engine {
                 }
             }
         }
-
         return best_move;
     }
 
@@ -102,26 +101,33 @@ public class Engine {
         Color curr = game.isRedToMove() ? Color.Yellow : Color.Red;
         int sign = game.isRedToMove() ? -1 : 1;
         final int row = game.firstEmpty(col)-1;
-        System.out.println(row);
         double eval = 0.0;
 
-        eval += CENTER_MAP[row][col];
+        for (int i = 0; i < Game.COLS; i++){
+            for (int j = 0; j < Game.ROWS; j++){
+                eval-=game.get(i,j).val()*CENTER_MAP[j][i];
+            }
+        }
         // horizontal check
         for (int y = 0; y < Game.ROWS; y++){
-            for (int x = 0; x + 3 < Game.COLS; x++){
-                int countG = game.count(x,y, x+3, y, curr);
-                int countE = game.count(x,y, x+3, y, Color.Empty);
+            for (int x = 0; x + 3 < Game.COLS; x++) {
+                int countG = game.count(x, y, x + 3, y, curr);
+                int countE = game.count(x, y, x + 3, y, Color.Empty);
                 if (countG == 4)
-                    return WIN*sign;
-                else if (countG == 3 && countE == 1)
+                    return WIN * sign;
+                else if (countG == 3 && countE == 1){
                     eval += CONNECT_3;
-                else if (countG == 2 && countE == 2)
+                    break;
+                }
+                else if (countG == 2 && countE == 2) {
                     eval += CONNECT_2;
+                    break;
+                }
                 else if (countG == 0){
                     if (countE == 0)
                         return -WIN*sign;
                     else if (countE == 1)
-                        eval -= CONNECT_3;
+                        eval -= 2*CONNECT_3;
                     else if (countE == 2)
                         eval -= CONNECT_2;
                 }
@@ -135,15 +141,19 @@ public class Engine {
                 int countE = game.count(x,y,x,y+3, Color.Empty);
                 if (countG == 4)
                     return WIN*sign;
-                else if (countG == 3 && countE == 1)
+                else if (countG == 3 && countE == 1){
                     eval += CONNECT_3;
-                else if (countG == 2 && countE == 2)
+                    break;
+                }
+                else if (countG == 2 && countE == 2) {
                     eval += CONNECT_2;
+                    break;
+                }
                 else if (countG == 0){
                     if (countE == 0)
                         return -WIN*sign;
                     else if (countE == 1)
-                        eval -= CONNECT_3;
+                        eval -= 2*CONNECT_3;
                     else if (countE == 2)
                         eval -= CONNECT_2;
                 }
@@ -157,15 +167,19 @@ public class Engine {
                 int countE = game.count(x,y, x+3, y+3, Color.Empty);
                 if (countG == 4)
                     return WIN*sign;
-                else if (countG == 3 && countE == 1)
+                else if (countG == 3 && countE == 1){
                     eval += CONNECT_3;
-                else if (countG == 2 && countE == 2)
+                    break;
+                }
+                else if (countG == 2 && countE == 2) {
                     eval += CONNECT_2;
+                    break;
+                }
                 else if (countG == 0){
                     if (countE == 0)
                         return -WIN*sign;
                     else if (countE == 1)
-                        eval -= CONNECT_3;
+                        eval -= 2*CONNECT_3;
                     else if (countE == 2)
                         eval -= CONNECT_2;
                 }
@@ -179,15 +193,19 @@ public class Engine {
                 int countE = game.count(x,y, x+3, y-3, Color.Empty);
                 if (countG == 4)
                     return WIN*sign;
-                else if (countG == 3 && countE == 1)
+                else if (countG == 3 && countE == 1){
                     eval += CONNECT_3;
-                else if (countG == 2 && countE == 2)
+                    break;
+                }
+                else if (countG == 2 && countE == 2) {
                     eval += CONNECT_2;
+                    break;
+                }
                 else if (countG == 0){
                     if (countE == 0)
                         return -WIN*sign;
                     else if (countE == 1)
-                        eval -= CONNECT_3;
+                        eval -= 2*CONNECT_3;
                     else if (countE == 2)
                         eval -= CONNECT_2;
                 }

@@ -54,7 +54,7 @@ public class SinglePlayerController {
     public SinglePlayerController(){
         game = new Game();
         currentMouseCol = 0;
-        myColor = Color.Red;
+        myColor = Color.Yellow;
     }
 
     /**
@@ -81,23 +81,28 @@ public class SinglePlayerController {
             }
         }
 
-        imaginaryCircle = new Circle(xLeg/2.0,(Game.ROWS-1)*yLeg+yLeg/2.0,radius,game.isRedToMove() ? javafx.scene.paint.Color.RED : javafx.scene.paint.Color.YELLOW);
+        imaginaryCircle = new Circle(xLeg/2.0,(Game.ROWS-1)*yLeg+yLeg/2.0,radius,myColor == Color.Red ? javafx.scene.paint.Color.RED : javafx.scene.paint.Color.YELLOW);
         imaginaryCircle.setOpacity(imaginaryCircleOpc);
+        if (myColor == Color.Red != game.isRedToMove())
+            imaginaryCircle.setOpacity(0);
         _gamePane.getChildren().add(imaginaryCircle);
         imaginaryCircle.toFront();
 
         // start playing playback sound in loop
-        try {
+        /*try {
             AudioInputStream audioIn = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResourceAsStream("./assets/" + "playback_music_bicycle.wav")));
             Clip clip = AudioSystem.getClip();
             clip.open(audioIn);
             clip.loop(Clip.LOOP_CONTINUOUSLY); // loop until the program is terminated (game is over)
             clip.start();
             playback = clip; // save the clip for later
-        } catch (Exception ignore){}
+        } catch (Exception ignore){}*/
 
         _opponentLabel.setText("Opponent: " + Utils.opColor(myColor));
         _chatTextArea.appendText("You are playing Red.\nGood luck trying to beat the engine!\n");
+        if (myColor == Color.Yellow){
+            makeEngineMove();
+        }
     }
 
     /**
@@ -227,6 +232,12 @@ public class SinglePlayerController {
         try {
             playSound("disc_fall_sfx.wav");
         } catch (Exception ignore){}
+    }
+
+    private void makeEngineMove(){
+        int engineMove = Engine.genBestMove(game, Utils.opColor(myColor));
+        fallingAnimation(engineMove, game.firstEmpty(engineMove), game.isRedToMove());
+        game.makeMove(engineMove);
     }
 
     /**

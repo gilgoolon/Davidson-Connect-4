@@ -47,12 +47,18 @@ public class Utils {
      * @return an arraylist containing all possible moves
      */
     public static List<Integer> genLegalMoves(Game game){
+        // adding move order optimization
         if (game.isWin())
             return Collections.emptyList();
         ArrayList<Integer> moves = new ArrayList<>();
-        for (int i = 0; i < Game.COLS; i++)
-            if (game.isFreeCol(i))
-                moves.add(i);
+        if (game.isFreeCol(Game.COLS/2))
+            moves.add(Game.COLS/2);
+        for (int i = 1; i <= Game.COLS/2; i++) {
+            if (game.isFreeCol(Game.COLS/2 + i))
+                moves.add(Game.COLS/2 + i);
+            if (game.isFreeCol(Game.COLS/2 - i))
+                moves.add(Game.COLS/2 - i);
+        }
         return moves;
     }
 

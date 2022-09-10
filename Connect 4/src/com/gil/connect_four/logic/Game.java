@@ -95,7 +95,9 @@ public class Game {
         // horizontal check
         for (int y = 0; y < ROWS; y++){
             for (int x = 0; x + 3 < COLS; x++){
-                if (count(x,y, x+3, y, _redToMove ? Color.Yellow : Color.Red) == 4)
+                int countR = count(x,y, x+3, y, Color.Red);
+                int countY = count(x,y, x+3, y, Color.Yellow);
+                if (countR == 4 || countY == 4)
                     return true;
             }
         }
@@ -103,7 +105,9 @@ public class Game {
         // vertical check
         for (int x = 0; x < COLS; x++){
             for (int y = 0; y + 3 < ROWS; y++){
-                if (count(x,y, x, y+3, _redToMove ? Color.Yellow : Color.Red) == 4)
+                int countR = count(x,y, x, y+3, Color.Red);
+                int countY = count(x,y, x, y+3, Color.Yellow);
+                if (countR == 4 || countY == 4)
                     return true;
             }
         }
@@ -111,7 +115,9 @@ public class Game {
         // diagonal (up-right) check
         for (int x = 0; x + 3 < COLS; x++){
             for (int y = 0; y + 3 < ROWS; y++){
-                if (count(x,y, x+3, y+3, _redToMove ? Color.Yellow : Color.Red) == 4)
+                int countR = count(x,y, x+3, y+3, Color.Red);
+                int countY = count(x,y, x+3, y+3, Color.Yellow);
+                if (countR == 4 || countY == 4)
                     return true;
             }
         }
@@ -119,7 +125,9 @@ public class Game {
         // diagonal (up-left) check
         for (int x = 0; x + 3 < COLS; x++){
             for (int y = ROWS-1; y - 3 >= 0; y--){
-                if (count(x,y, x+3, y-3, _redToMove ? Color.Yellow : Color.Red) == 4)
+                int countR = count(x,y, x+3, y-3, Color.Red);
+                int countY = count(x,y, x+3, y-3, Color.Yellow);
+                if (countR == 4 || countY == 4)
                     return true;
             }
         }
