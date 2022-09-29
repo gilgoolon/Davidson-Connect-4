@@ -87,6 +87,14 @@ public class Game {
         return i;
     }
 
+    public GameStatus status(){
+        if (isWin())
+            return GameStatus.WIN;
+        for (int i = 0; i < COLS; i++)
+            if (isFreeCol(i))
+                return GameStatus.ONGOING;
+        return GameStatus.TIE;
+    }
     /**
      * Check if the last move resulted in a win for the player who played it
      * @return true if the current board has a win (for the last player who moved), false otherwise
@@ -145,7 +153,7 @@ public class Game {
         return count(toCount, c);
     }
 
-    public static int count(Color [] arr, Color c){
+    private static int count(Color [] arr, Color c){
         int sum = 0;
         for (Color x : arr)
             if (x == c)

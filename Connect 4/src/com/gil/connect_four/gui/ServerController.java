@@ -2,6 +2,7 @@ package com.gil.connect_four.gui;
 
 import com.gil.connect_four.logic.Color;
 import com.gil.connect_four.logic.Game;
+import com.gil.connect_four.logic.GameStatus;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
@@ -244,7 +245,7 @@ public class ServerController
                 }
 
                 // while game not over
-                while (!game.isWin())
+                while (game.status() == GameStatus.ONGOING)
                 {
                     int location = -1; // initialize move location
 

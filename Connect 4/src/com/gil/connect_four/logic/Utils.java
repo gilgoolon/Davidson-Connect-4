@@ -13,7 +13,7 @@ public class Utils {
      */
     public static void playGame() {
         Game game = new Game(); // create the game
-        while (!game.isWin()){
+        while (game.status() == GameStatus.ONGOING){
             if (game.isRedToMove()) // if red to move let the user choose input
                 game.makeMove(getLegalMoveFromStdIn(game));
             else {

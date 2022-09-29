@@ -19,8 +19,7 @@ public class Client extends Application {
         loader.setLocation(getClass().getResource("fxml/client.fxml"));
         Parent root = loader.load();
         ClientController cont = loader.getController();
-        stage.setOnCloseRequest((e) -> cont.terminate());
-        cont.startClient();
+
 
         Scene scene = new Scene(root);
         stage.setScene(scene);
@@ -30,5 +29,7 @@ public class Client extends Application {
         stage.show();
         stage.setResizable(false);
         ((ClientController)loader.getController()).init();
+        stage.setOnCloseRequest((e) -> cont.terminate());
+        cont.startClient();
     }
 }

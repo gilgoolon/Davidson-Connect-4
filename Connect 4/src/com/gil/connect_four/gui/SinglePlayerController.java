@@ -1,9 +1,6 @@
 package com.gil.connect_four.gui;
 
-import com.gil.connect_four.logic.Color;
-import com.gil.connect_four.logic.Engine;
-import com.gil.connect_four.logic.Game;
-import com.gil.connect_four.logic.Utils;
+import com.gil.connect_four.logic.*;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
@@ -180,37 +177,24 @@ public class SinglePlayerController {
         ft.setOnFinished((event) -> {
             // update imaginary circle after the animation is done
             if (game.isRedToMove() != (myColor == Color.Red)){
-                if (game.isWin()){
-                    try {
-                        imaginaryCircle.setOpacity(0);
-                        playback.stop();
-                        playSound("win_horn_sfx.wav");
-                    } catch (Exception ignore){}
-
-                    Platform.runLater(() ->{
-                        gameOver();
+                GameStatus status = game.status();
+                if (status != GameStatus.ONGOING)
+                    Platform.runLater(() -> {
+                        gameOver(status);
                         terminate();
                     });
-                    return;
-                }
                 imaginaryCircle.setOpacity(0);
                 int engineMove = Engine.genBestMove(game,Utils.opColor(myColor));
                 fallingAnimation(engineMove, game.firstEmpty(engineMove), game.isRedToMove());
                 game.makeMove(engineMove);
-                if (game.isWin()){
-                    try {
-                        imaginaryCircle.setOpacity(0);
-                        playback.stop();
-                        playSound("lose_horn_sfx.wav");
-                    } catch (Exception ignore){}
 
+                GameStatus status2 = game.status();
+                if (status2 != GameStatus.ONGOING)
                     Platform.runLater(() -> {
-                        gameOver();
+                        gameOver(status2);
                         terminate();
                     });
-                    return;
 
-                }
                 if (engineMove == col) {
                     if (row + 2 != Game.ROWS) {
                         imaginaryCircle.setCenterY((Game.ROWS - 3 - row) * yLeg + yLeg / 2.0);
@@ -255,9 +239,21 @@ public class SinglePlayerController {
     /**
      * End the game including prompting who won the game
      */
-    private void gameOver(){
+    private void gameOver(GameStatus status){
+        try {
+            imaginaryCircle.setOpacity(0);
+            playback.stop();
+            if (status == GameStatus.WIN)
+                if (!game.isRedToMove() == (myColor == Color.Red))
+                    playSound("win_horn_sfx.wav");
+                else playSound("lose_horn_sfx.wav");
+            else playSound("tie_horn_sfx.wav");
+        } catch (Exception ignore){}
+
         Alert a = new Alert(Alert.AlertType.INFORMATION, "Game Over !");
-        a.setHeaderText((game.isRedToMove() ? "The yellow " : "The red ") + "player has won the game.");
+        if (status == GameStatus.WIN)
+            a.setHeaderText((game.isRedToMove() ? "The yellow " : "The red ") + "player has won the game.");
+        else a.setHeaderText("The game has ended in a tie.");
         a.showAndWait();
     }
 

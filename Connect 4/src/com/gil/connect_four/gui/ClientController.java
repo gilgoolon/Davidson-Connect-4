@@ -2,6 +2,8 @@ package com.gil.connect_four.gui;
 
 import com.gil.connect_four.logic.Color;
 import com.gil.connect_four.logic.Game;
+import com.gil.connect_four.logic.GameStatus;
+import com.gil.connect_four.logic.Utils;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
@@ -70,8 +72,8 @@ public class ClientController implements Runnable{
 
     public void init(){
         // initialize board variables
-        WIDTH = _gamePane.getPrefWidth();
-        HEIGHT = _gamePane.getPrefHeight();
+        WIDTH = _gamePane.getWidth();
+        HEIGHT = _gamePane.getHeight();
         xLeg = WIDTH/Game.COLS;
         yLeg = HEIGHT/Game.ROWS;
         padding =  5.0;
@@ -108,7 +110,7 @@ public class ClientController implements Runnable{
     void mouseMovedBoard(@NotNull MouseEvent event){
         int newCol = (int)(event.getX()/xLeg);
 
-        if (newCol == currentMouseCol || game.isRedToMove() != (myColor == Color.Red))
+        if (newCol == currentMouseCol || game.isRedToMove() != (myColor == Color.Red) || newCol == Game.COLS)
             return;
 
         currentMouseCol = newCol;
@@ -134,7 +136,9 @@ public class ClientController implements Runnable{
         output.flush();
         fallingAnimation(currentMouseCol, game.firstEmpty(currentMouseCol), game.isRedToMove());
         game.makeMove(currentMouseCol);
-        if (game.isWin()){
+
+        GameStatus status = game.status();
+        if (status == GameStatus.WIN){
             try {
                 imaginaryCircle.setOpacity(0);
                 playback.stop();
@@ -279,31 +283,42 @@ public class ClientController implements Runnable{
             displayMessage("Server>>> Opponent moved. Your turn.\n");
 
             // now check for win
-            if (game.isWin()){
-                try {
-                    playback.stop();
-                    playSound("lose_horn_sfx.wav");
-                } catch (Exception ignore){}
+            GameStatus status = game.status();
+            if (status != GameStatus.ONGOING)
                 Platform.runLater(() -> {
-                    imaginaryCircle.setOpacity(0);
-                    Alert a = new Alert(Alert.AlertType.INFORMATION, "Game Over !");
-                    a.setHeaderText((game.isRedToMove() ? "The yellow " : "The red ") + "player has won the game.");
-                    a.showAndWait();
+                    gameOver(status);
                     terminate();
                 });
-            }
         }
         else if (message.startsWith("Server>>>")){
             displayMessage(message + "\n");
         }
         else {
-            displayMessage((myColor == Color.Red ? Color.Yellow : Color.Red) + ": " + message + "\n"); // display the message
+            displayMessage(Utils.opColor(myColor) + ": " + message + "\n"); // display the message
         }
     }
 
     // manipulate displayArea in event-dispatch thread
     private void displayMessage(final String messageToDisplay) {
         Platform.runLater(() -> _chatTextArea.appendText(messageToDisplay));
+    }
+
+    private void gameOver(GameStatus status){
+        try {
+            imaginaryCircle.setOpacity(0);
+            playback.stop();
+            if (status == GameStatus.WIN)
+                if (!game.isRedToMove() == (myColor == Color.Red))
+                    playSound("win_horn_sfx.wav");
+                else playSound("lose_horn_sfx.wav");
+            else playSound("tie_horn_sfx.wav");
+        } catch (Exception ignore){}
+
+        Alert a = new Alert(Alert.AlertType.INFORMATION, "Game Over !");
+        if (status == GameStatus.WIN)
+            a.setHeaderText((game.isRedToMove() ? "The yellow " : "The red ") + "player has won the game.");
+        else a.setHeaderText("The game has ended in a tie.");
+        a.showAndWait();
     }
 
     public void terminate(){
