@@ -25,5 +25,7 @@ public class SinglePlayer extends Application {
         // set the title and finally show the application window
         stage.setTitle("Connect-4 (SinglePlayer)");
         stage.show();
+        stage.setResizable(false);
+        ((SinglePlayerController)loader.getController()).init();
     }
 }

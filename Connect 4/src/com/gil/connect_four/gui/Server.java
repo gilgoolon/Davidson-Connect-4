@@ -28,6 +28,7 @@ public class Server extends Application {
         // set the title and finally show the application window
         stage.setTitle("Connect-4 (Server)");
         stage.show();
+        stage.setResizable(false);
         Platform.runLater(cont::execute);
     }
 }

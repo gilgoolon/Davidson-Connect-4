@@ -58,17 +58,15 @@ public class SinglePlayerController {
     }
 
     /**
-     * This function is a special javafx function that gets called immediately after the "behind the scenes"
-     * setup of the GUI. We use this function to set up the GUI using variable set in the FXML file.
+     * Set up the GUI using variable set in the FXML file.
      * Certain things cannot be accessed in the constructor like the pane height and width (because it is still null
      * in runtime of construction) and therefore need to wait for the setup of the GUI that occurs behind automatically
      * behind the scenes using some information from the FXML file.
      */
-    @FXML
-    void initialize(){
+    public void init(){
         // initialize board variables
-        WIDTH = _gamePane.getPrefWidth();
-        HEIGHT = _gamePane.getPrefHeight();
+        WIDTH = _gamePane.getWidth();
+        HEIGHT = _gamePane.getHeight();
         xLeg = WIDTH/Game.COLS;
         yLeg = HEIGHT/Game.ROWS;
         padding =  5.0;
@@ -123,7 +121,7 @@ public class SinglePlayerController {
     void mouseMovedBoard(@NotNull MouseEvent event){
         int newCol = (int)(event.getX()/xLeg);
 
-        if (newCol == currentMouseCol || game.isRedToMove() != (myColor == Color.Red))
+        if (newCol == currentMouseCol || game.isRedToMove() != (myColor == Color.Red) || newCol == Game.COLS)
             return;
 
         currentMouseCol = newCol;

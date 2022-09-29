@@ -67,8 +67,8 @@ public class ClientController implements Runnable{
         game = new Game(); // create new game with starting conditions
         currentMouseCol = 0;
     }
-    @FXML
-    void initialize(){
+
+    public void init(){
         // initialize board variables
         WIDTH = _gamePane.getPrefWidth();
         HEIGHT = _gamePane.getPrefHeight();
@@ -89,6 +89,7 @@ public class ClientController implements Runnable{
         _gamePane.getChildren().add(imaginaryCircle);
         imaginaryCircle.toFront();
     }
+
     @FXML
     void quitPressed() {
         terminate();

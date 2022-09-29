@@ -28,5 +28,7 @@ public class Client extends Application {
         // set the title and finally show the application window
         stage.setTitle("Connect-4 (Client)");
         stage.show();
+        stage.setResizable(false);
+        ((ClientController)loader.getController()).init();
     }
 }
