@@ -61,6 +61,7 @@ public class SinglePlayerController {
      * behind the scenes using some information from the FXML file.
      */
     public void init(){
+        _gamePane.getChildren().clear();
         // initialize board variables
         WIDTH = _gamePane.getWidth();
         HEIGHT = _gamePane.getHeight();
@@ -98,6 +99,8 @@ public class SinglePlayerController {
         if (myColor == Color.Yellow){
             makeEngineMove();
         }
+
+
     }
 
     /**

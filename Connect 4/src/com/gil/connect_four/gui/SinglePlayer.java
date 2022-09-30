@@ -18,6 +18,7 @@ public class SinglePlayer extends Application {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("fxml/single-player.fxml"));
         Parent root = loader.load();
+        SinglePlayerController controller = loader.getController();
 
         Scene scene = new Scene(root);
         stage.setScene(scene);
@@ -25,7 +26,15 @@ public class SinglePlayer extends Application {
         // set the title and finally show the application window
         stage.setTitle("Connect-4 (SinglePlayer)");
         stage.show();
+        stage.setFullScreen(true);
         stage.setResizable(false);
-        ((SinglePlayerController)loader.getController()).init();
+        controller.init();
+        stage.widthProperty().addListener((obs,oldVal,newVal) -> {
+            controller.init();
+        });
+
+        stage.heightProperty().addListener((obs,oldVal,newVal) -> {
+            controller.init();
+        });
     }
 }
