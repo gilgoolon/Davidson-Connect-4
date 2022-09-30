@@ -71,6 +71,7 @@ public class ClientController implements Runnable{
     }
 
     public void init(){
+        _gamePane.getChildren().clear();
         // initialize board variables
         WIDTH = _gamePane.getWidth();
         HEIGHT = _gamePane.getHeight();
@@ -81,13 +82,21 @@ public class ClientController implements Runnable{
         // draw white circles
         for (int x = 0; x < Game.COLS; x++){
             for (int y = 0; y < Game.ROWS; y++){
-                Circle circle = new Circle(x*xLeg+xLeg/2.0,y*yLeg + yLeg/2.0,radius, javafx.scene.paint.Color.WHITE);
+                javafx.scene.paint.Color curr = game.get(Game.COLS-1-x,Game.ROWS-1-y) == Color.Red ? javafx.scene.paint.Color.RED : game.get(Game.COLS-1-x,Game.ROWS-1-y) == Color.Yellow ? javafx.scene.paint.Color.YELLOW : javafx.scene.paint.Color.WHITE;
+                Circle circle = new Circle((Game.COLS-1-x)*xLeg+xLeg/2.0,y*yLeg + yLeg/2.0,radius, curr);
                 _gamePane.getChildren().add(circle);
             }
         }
 
-        imaginaryCircle = new Circle(xLeg/2.0,(Game.ROWS-1)*yLeg+yLeg/2.0,radius,game.isRedToMove() ? javafx.scene.paint.Color.RED : javafx.scene.paint.Color.YELLOW);
+        if (imaginaryCircle == null)
+            createImaginaryCircle();
+    }
+
+    private void createImaginaryCircle(){
+        imaginaryCircle = new Circle(currentMouseCol*xLeg+xLeg/2.0,(Game.ROWS-1-game.firstEmpty(currentMouseCol))*yLeg+yLeg/2.0,radius,myColor == Color.Red ? javafx.scene.paint.Color.RED : javafx.scene.paint.Color.YELLOW);
         imaginaryCircle.setOpacity(imaginaryCircleOpc);
+        if (myColor == Color.Red != game.isRedToMove())
+            imaginaryCircle.setOpacity(0);
         _gamePane.getChildren().add(imaginaryCircle);
         imaginaryCircle.toFront();
     }
@@ -114,6 +123,7 @@ public class ClientController implements Runnable{
             return;
 
         currentMouseCol = newCol;
+
         if (game.isFreeCol(currentMouseCol)){
             imaginaryCircle.setOpacity(imaginaryCircleOpc);
             imaginaryCircle.setCenterX(newCol*xLeg + xLeg/2.0);

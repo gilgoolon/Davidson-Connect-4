@@ -67,31 +67,41 @@ public class SinglePlayerController {
         HEIGHT = _gamePane.getHeight();
         xLeg = WIDTH/Game.COLS;
         yLeg = HEIGHT/Game.ROWS;
+        System.out.println("stat");
         padding =  5.0;
         radius = (Math.min(xLeg,yLeg))/2.0-padding;
         // draw white circles
         for (int x = 0; x < Game.COLS; x++){
             for (int y = 0; y < Game.ROWS; y++){
-                Circle circle = new Circle(x*xLeg+xLeg/2.0,y*yLeg + yLeg/2.0,radius, javafx.scene.paint.Color.WHITE);
+                javafx.scene.paint.Color curr = game.get(Game.COLS-1-x,Game.ROWS-1-y) == Color.Red ? javafx.scene.paint.Color.RED : game.get(Game.COLS-1-x,Game.ROWS-1-y) == Color.Yellow ? javafx.scene.paint.Color.YELLOW : javafx.scene.paint.Color.WHITE;
+                Circle circle = new Circle((Game.COLS-1-x)*xLeg+xLeg/2.0,y*yLeg + yLeg/2.0,radius, curr);
                 _gamePane.getChildren().add(circle);
             }
         }
 
-        imaginaryCircle = new Circle(xLeg/2.0,(Game.ROWS-1)*yLeg+yLeg/2.0,radius,myColor == Color.Red ? javafx.scene.paint.Color.RED : javafx.scene.paint.Color.YELLOW);
+        System.out.println("stat2");
+        if (imaginaryCircle == null)
+            createImaginaryCircle();
+        System.out.println("stat3");
+    }
+
+    private void createImaginaryCircle(){
+        imaginaryCircle = new Circle(currentMouseCol*xLeg+xLeg/2.0,(Game.ROWS-1-game.firstEmpty(currentMouseCol))*yLeg+yLeg/2.0,radius,myColor == Color.Red ? javafx.scene.paint.Color.RED : javafx.scene.paint.Color.YELLOW);
         imaginaryCircle.setOpacity(imaginaryCircleOpc);
         if (myColor == Color.Red != game.isRedToMove())
             imaginaryCircle.setOpacity(0);
         _gamePane.getChildren().add(imaginaryCircle);
         imaginaryCircle.toFront();
+    }
 
+    public void execute(){
         // start playing playback sound in loop
         /*try {
             AudioInputStream audioIn = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResourceAsStream("./assets/" + "playback_music_bicycle.wav")));
-            Clip clip = AudioSystem.getClip();
-            clip.open(audioIn);
-            clip.loop(Clip.LOOP_CONTINUOUSLY); // loop until the program is terminated (game is over)
-            clip.start();
-            playback = clip; // save the clip for later
+            playback = AudioSystem.getClip();
+            playback.open(audioIn);
+            playback.loop(Clip.LOOP_CONTINUOUSLY); // loop until the program is terminated (game is over)
+            playback.start();
         } catch (Exception ignore){}*/
 
         _opponentLabel.setText("Opponent: " + Utils.opColor(myColor));
@@ -99,10 +109,7 @@ public class SinglePlayerController {
         if (myColor == Color.Yellow){
             makeEngineMove();
         }
-
-
     }
-
     /**
      * This function gets called when the user presses the "quit" button, terminates the program.
      */
