@@ -67,7 +67,6 @@ public class SinglePlayerController {
         HEIGHT = _gamePane.getHeight();
         xLeg = WIDTH/Game.COLS;
         yLeg = HEIGHT/Game.ROWS;
-        System.out.println("stat");
         padding =  5.0;
         radius = (Math.min(xLeg,yLeg))/2.0-padding;
         // draw white circles
@@ -79,10 +78,9 @@ public class SinglePlayerController {
             }
         }
 
-        System.out.println("stat2");
         if (imaginaryCircle == null)
             createImaginaryCircle();
-        System.out.println("stat3");
+        else _gamePane.getChildren().add(imaginaryCircle);
     }
 
     private void createImaginaryCircle(){

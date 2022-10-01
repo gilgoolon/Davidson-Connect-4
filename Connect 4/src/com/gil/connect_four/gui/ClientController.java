@@ -90,6 +90,7 @@ public class ClientController implements Runnable{
 
         if (imaginaryCircle == null)
             createImaginaryCircle();
+        else _gamePane.getChildren().add(imaginaryCircle);
     }
 
     private void createImaginaryCircle(){
