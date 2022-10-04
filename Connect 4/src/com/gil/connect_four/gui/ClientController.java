@@ -147,17 +147,11 @@ public class ClientController implements Runnable{
         game.makeMove(currentMouseCol);
 
         GameStatus status = game.status();
-        if (status == GameStatus.WIN){
-            try {
-                imaginaryCircle.setOpacity(0);
-                playback.stop();
-                playSound("win_horn_sfx.wav");
-            } catch (Exception ignore){}
-            Alert a = new Alert(Alert.AlertType.INFORMATION, "Game Over !");
-            a.setHeaderText((game.isRedToMove() ? "The yellow " : "The red ") + "player has won the game.");
-            a.showAndWait();
-            terminate();
-        }
+        if (status != GameStatus.ONGOING)
+            Platform.runLater(() -> {
+                gameOver(status);
+                terminate();
+            });
     }
 
     /**
@@ -279,6 +273,7 @@ public class ClientController implements Runnable{
         {
             if (input.hasNextLine())
                 processMessage(input.nextLine());
+            else break;
         }
     }
 
