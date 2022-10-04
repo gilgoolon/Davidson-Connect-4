@@ -88,9 +88,7 @@ public class ClientController implements Runnable{
             }
         }
 
-        if (imaginaryCircle == null)
-            createImaginaryCircle();
-        else _gamePane.getChildren().add(imaginaryCircle);
+        createImaginaryCircle();
     }
 
     private void createImaginaryCircle(){
@@ -120,7 +118,7 @@ public class ClientController implements Runnable{
     void mouseMovedBoard(@NotNull MouseEvent event){
         int newCol = (int)(event.getX()/xLeg);
 
-        if (newCol == currentMouseCol || game.isRedToMove() != (myColor == Color.Red) || newCol == Game.COLS)
+        if (newCol == currentMouseCol || game.isRedToMove() != (myColor == Color.Red) || newCol >= Game.COLS)
             return;
 
         currentMouseCol = newCol;

@@ -5,6 +5,10 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -38,6 +42,13 @@ public class Client extends Application {
         stage.heightProperty().addListener((a,b,c) ->{
             controller.init();
         });
+        KeyCombination fullScreenCombo = new KeyCodeCombination(KeyCode.F11);
+        stage.addEventHandler(KeyEvent.KEY_PRESSED, (event) -> {
+            if (fullScreenCombo.match(event)){
+                stage.setFullScreen(!stage.isFullScreen());
+            }
+        });
+        stage.setFullScreenExitHint("Press F11 to toggle fullscreen mode");
 
         // set the title and finally show the application window
         stage.setTitle("Connect-4 (Client)");

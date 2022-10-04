@@ -78,9 +78,7 @@ public class SinglePlayerController {
             }
         }
 
-        if (imaginaryCircle == null)
-            createImaginaryCircle();
-        else _gamePane.getChildren().add(imaginaryCircle);
+        createImaginaryCircle();
     }
 
     private void createImaginaryCircle(){
@@ -103,7 +101,7 @@ public class SinglePlayerController {
         } catch (Exception ignore){}*/
 
         _opponentLabel.setText("Opponent: " + Utils.opColor(myColor));
-        _chatTextArea.appendText("You are playing Red.\nGood luck trying to beat the engine!\n");
+        _chatTextArea.appendText("You are playing Yellow.\nGood luck trying to beat the engine!\n");
         if (myColor == Color.Yellow){
             makeEngineMove();
         }
@@ -126,7 +124,7 @@ public class SinglePlayerController {
     void mouseMovedBoard(@NotNull MouseEvent event){
         int newCol = (int)(event.getX()/xLeg);
 
-        if (newCol == currentMouseCol || game.isRedToMove() != (myColor == Color.Red) || newCol == Game.COLS)
+        if (newCol == currentMouseCol || game.isRedToMove() != (myColor == Color.Red) || newCol >= Game.COLS)
             return;
 
         currentMouseCol = newCol;
