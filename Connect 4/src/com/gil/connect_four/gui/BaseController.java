@@ -155,6 +155,7 @@ public abstract class BaseController {
     }
 
     abstract protected void onAnimationFinished();
+    abstract protected void execute();
     protected void updateImgCircle(){
         if (game.isFreeCol(currentMouseCol)){
             imaginaryCircle.setOpacity(imaginaryCircleOpc);

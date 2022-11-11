@@ -75,7 +75,7 @@ public class ClientController extends BaseController implements Runnable{
         checkForEnd();
     }
     // start the client thread
-    public void startClient()
+    public void execute()
     {
         Socket connection = null;
         try // connect to server and get streams
