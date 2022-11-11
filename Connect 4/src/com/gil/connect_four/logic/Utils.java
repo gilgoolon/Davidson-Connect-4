@@ -48,7 +48,7 @@ public class Utils {
      */
     public static List<Integer> genLegalMoves(Game game){
         // adding move order optimization
-        if (game.isWin())
+        if (game.status() == GameStatus.WIN)
             return Collections.emptyList();
         ArrayList<Integer> moves = new ArrayList<>();
         if (game.isFreeCol(Game.COLS/2))

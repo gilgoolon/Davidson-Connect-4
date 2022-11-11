@@ -10,14 +10,9 @@ public class Engine {
     private final static double CONNECT_2 = 1;
     private final static double CONNECT_3 = 5;
     private final static double WIN = Integer.MAX_VALUE;
-    private final static double[][] CENTER_MAP = {
-            {0,1,1,5,1,1,0},
-            {0,1,1,5,1,1,0},
-            {0,1,1,5,1,1,0},
-            {0,1,2,5,2,1,0},
-            {0,1,2,5,2,1,0},
-            {0,0,1,5,1,0,0}
-    };
+    public static int duplicates = 0;
+
+    private final static HashMap<Integer,Double> transpositionTable = new HashMap<>();
 
     /**
      * Generate the best move "naively" - using brute force approach
@@ -29,7 +24,7 @@ public class Engine {
         HashMap<Integer,Double> evaluations = new HashMap<>(); // store the evaluation of each move in a map
         for (int move : legal_moves) { // calculate and store the eval of each move
             game.makeMove(move);
-            evaluations.put(move, alphaBetaPruning(game, move, 9,curr,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY));
+            evaluations.put(move, alphaBetaPruning(game,8,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY,curr));
             game.unMakeMove(move);
         }
 
@@ -55,18 +50,18 @@ public class Engine {
         return best_move;
     }
 
-    private static double alphaBetaPruning(Game game, int lastMove, int depth, Color current, double alpha, double beta){
+    private static double alphaBetaPruning(Game game, int depth, double alpha, double beta, Color current){
         List<Integer> legal_moves = Utils.genLegalMoves(game);
 
         if (legal_moves.isEmpty() || depth == 0) // leaf node
-            return evaluate(game, lastMove);
+            return evaluate(game);
 
         double bestVal;
         if (current == Color.Yellow){
             bestVal = Double.NEGATIVE_INFINITY;
             for (int move : legal_moves){
                 game.makeMove(move);
-                double value = alphaBetaPruning(game, move,depth-1, Utils.opColor(current),alpha,beta);
+                double value = alphaBetaPruning(game,depth-1,alpha,beta,Utils.opColor(current));
                 game.unMakeMove(move);
                 bestVal = Math.max(bestVal,value);
                 alpha = Math.max(alpha,bestVal);
@@ -78,7 +73,7 @@ public class Engine {
             bestVal = Double.POSITIVE_INFINITY;
             for (int move : legal_moves){
                 game.makeMove(move);
-                double value = alphaBetaPruning(game, lastMove, depth-1, Utils.opColor(current),alpha,beta);
+                double value = alphaBetaPruning(game,depth-1,alpha,beta,Utils.opColor(current));
                 game.unMakeMove(move);
                 bestVal = Math.min(bestVal,value);
                 beta = Math.min(beta,bestVal);
@@ -93,44 +88,25 @@ public class Engine {
      * Evaluate a certain (legal) move from a certain position (negative - better for yellow, positive - better for red)
      * Assumes the move has been made already (makeMove(col) has been called before the function)
      * @param game represents the position to evaluate
-     * @param col represents the move to evaluate (column number)
      * @return a double representing the evaluation of the given position
      */
-    private static double evaluate(Game game, int col){
+    private static double evaluate(Game game){
+        int hash = game.hash();
+        if (transpositionTable.containsKey(hash)) {
+            duplicates++;
+            return transpositionTable.get(hash);
+        }
         // initializations
         Color curr = game.isRedToMove() ? Color.Yellow : Color.Red;
         int sign = game.isRedToMove() ? -1 : 1;
-        final int row = game.firstEmpty(col)-1;
         double eval = 0.0;
 
-        for (int i = 0; i < Game.COLS; i++){
-            for (int j = 0; j < Game.ROWS; j++){
-                eval-=game.get(i,j).val()*CENTER_MAP[j][i];
-            }
-        }
         // horizontal check
         for (int y = 0; y < Game.ROWS; y++){
             for (int x = 0; x + 3 < Game.COLS; x++) {
                 int countG = game.count(x, y, x + 3, y, curr);
                 int countE = game.count(x, y, x + 3, y, Color.Empty);
-                if (countG == 4)
-                    return WIN * sign;
-                else if (countG == 3 && countE == 1){
-                    eval += CONNECT_3;
-                    break;
-                }
-                else if (countG == 2 && countE == 2) {
-                    eval += CONNECT_2;
-                    break;
-                }
-                else if (countG == 0){
-                    if (countE == 0)
-                        return -WIN*sign;
-                    else if (countE == 1)
-                        eval -= 2*CONNECT_3;
-                    else if (countE == 2)
-                        eval -= CONNECT_2;
-                }
+                eval += subEval(countG,countE,sign);
             }
         }
 
@@ -139,24 +115,7 @@ public class Engine {
             for (int y = 0; y + 3 < Game.ROWS; y++){
                 int countG = game.count(x,y,x,y+3, curr);
                 int countE = game.count(x,y,x,y+3, Color.Empty);
-                if (countG == 4)
-                    return WIN*sign;
-                else if (countG == 3 && countE == 1){
-                    eval += CONNECT_3;
-                    break;
-                }
-                else if (countG == 2 && countE == 2) {
-                    eval += CONNECT_2;
-                    break;
-                }
-                else if (countG == 0){
-                    if (countE == 0)
-                        return -WIN*sign;
-                    else if (countE == 1)
-                        eval -= 2*CONNECT_3;
-                    else if (countE == 2)
-                        eval -= CONNECT_2;
-                }
+                eval += subEval(countG,countE,sign);
             }
         }
 
@@ -165,24 +124,7 @@ public class Engine {
             for (int y = 0; y + 3 < Game.ROWS; y++){
                 int countG = game.count(x,y, x+3, y+3, curr);
                 int countE = game.count(x,y, x+3, y+3, Color.Empty);
-                if (countG == 4)
-                    return WIN*sign;
-                else if (countG == 3 && countE == 1){
-                    eval += CONNECT_3;
-                    break;
-                }
-                else if (countG == 2 && countE == 2) {
-                    eval += CONNECT_2;
-                    break;
-                }
-                else if (countG == 0){
-                    if (countE == 0)
-                        return -WIN*sign;
-                    else if (countE == 1)
-                        eval -= 2*CONNECT_3;
-                    else if (countE == 2)
-                        eval -= CONNECT_2;
-                }
+                eval += subEval(countG,countE,sign);
             }
         }
 
@@ -191,28 +133,35 @@ public class Engine {
             for (int y = Game.ROWS-1; y - 3 >= 0; y--){
                 int countG = game.count(x,y, x+3, y-3, curr);
                 int countE = game.count(x,y, x+3, y-3, Color.Empty);
-                if (countG == 4)
-                    return WIN*sign;
-                else if (countG == 3 && countE == 1){
-                    eval += CONNECT_3;
-                    break;
-                }
-                else if (countG == 2 && countE == 2) {
-                    eval += CONNECT_2;
-                    break;
-                }
-                else if (countG == 0){
-                    if (countE == 0)
-                        return -WIN*sign;
-                    else if (countE == 1)
-                        eval -= 2*CONNECT_3;
-                    else if (countE == 2)
-                        eval -= CONNECT_2;
-                }
+                eval += subEval(countG,countE,sign);
             }
         }
 
+        transpositionTable.put(hash,eval*sign);
         return eval*sign;
+    }
+
+    /**
+     * Private helper function to help evaluate(), refactored
+     */
+    private static double subEval(int countG, int countE, int sign){
+        if (countG == 4)
+            return WIN*sign;
+        else if (countG == 3 && countE == 1){
+            return CONNECT_3;
+        }
+        else if (countG == 2 && countE == 2) {
+            return CONNECT_2;
+        }
+        else if (countG == 0){
+            if (countE == 0)
+                return -WIN*sign;
+            else if (countE == 1)
+                return -2*CONNECT_3;
+            else if (countE == 2)
+                return -CONNECT_2;
+        }
+        return 0;
     }
 
     /**

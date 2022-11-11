@@ -18,6 +18,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.sound.sampled.*;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class SinglePlayerController {
 
@@ -45,6 +47,7 @@ public class SinglePlayerController {
     private static final double imaginaryCircleOpc = 0.3; // opacity of the imaginary circle
     private Clip playback; // sound playback - end when the game is over (to not intercept with win\lose sound effects)
 
+    private ExecutorService executorService;
     /**
      * Override default constructor for the controller class - initialize states and variables not related to the GUI.
      */
@@ -52,6 +55,7 @@ public class SinglePlayerController {
         game = new Game();
         currentMouseCol = 0;
         myColor = Color.Yellow;
+        executorService = Executors.newCachedThreadPool();
     }
 
     /**
@@ -190,9 +194,7 @@ public class SinglePlayerController {
                         terminate();
                     });
                 imaginaryCircle.setOpacity(0);
-                int engineMove = Engine.genBestMove(game,Utils.opColor(myColor));
-                fallingAnimation(engineMove, game.firstEmpty(engineMove), game.isRedToMove());
-                game.makeMove(engineMove);
+                int engineMove = makeEngineMove();
 
                 GameStatus status2 = game.status();
                 if (status2 != GameStatus.ONGOING)
@@ -222,10 +224,15 @@ public class SinglePlayerController {
         } catch (Exception ignore){}
     }
 
-    private void makeEngineMove(){
-        int engineMove = Engine.genBestMove(game, Utils.opColor(myColor));
+    private int makeEngineMove(){
+        MoveGenerator mg = new MoveGenerator(game,Utils.opColor(myColor));
+        executorService.execute(mg);
+        int engineMove = mg.getMove();
+        if (engineMove == -1)
+            return -1;
         fallingAnimation(engineMove, game.firstEmpty(engineMove), game.isRedToMove());
         game.makeMove(engineMove);
+        return engineMove;
     }
 
     /**
@@ -267,6 +274,7 @@ public class SinglePlayerController {
      * Terminate the program
      */
     public void terminate(){
+        System.out.println(Engine.duplicates);
         Platform.exit();
         System.exit(0);
     }
