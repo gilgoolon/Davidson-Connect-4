@@ -22,11 +22,16 @@ public class Engine {
     public static int genBestMove(Game game, Color curr){
         List<Integer> legal_moves = Utils.genLegalMoves(game); // generating the legal moves
         HashMap<Integer,Double> evaluations = new HashMap<>(); // store the evaluation of each move in a map
+
         for (int move : legal_moves) { // calculate and store the eval of each move
-            game.makeMove(move);
-            evaluations.put(move, alphaBetaPruning(game,8,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY,curr));
-            game.unMakeMove(move);
+            MoveEval me = new MoveEval(new Game(game), move, curr, evaluations);
+            me.start();
+            try {
+                me.join();
+            } catch (Exception ignore){}
         }
+
+
 
         int best_move = -1;
         if (game.isRedToMove()) {
@@ -50,7 +55,7 @@ public class Engine {
         return best_move;
     }
 
-    private static double alphaBetaPruning(Game game, int depth, double alpha, double beta, Color current){
+    protected static double alphaBetaPruning(Game game, int depth, double alpha, double beta, Color current){
         List<Integer> legal_moves = Utils.genLegalMoves(game);
 
         if (legal_moves.isEmpty() || depth == 0) // leaf node
@@ -91,7 +96,7 @@ public class Engine {
      * @return a double representing the evaluation of the given position
      */
     private static double evaluate(Game game){
-        int hash = game.hash();
+        Integer hash = game.hash();
         if (transpositionTable.containsKey(hash)) {
             duplicates++;
             return transpositionTable.get(hash);

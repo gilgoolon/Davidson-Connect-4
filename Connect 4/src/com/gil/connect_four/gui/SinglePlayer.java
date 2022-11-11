@@ -48,6 +48,7 @@ public class SinglePlayer extends Application {
             }
         });
         stage.setFullScreenExitHint("Press F11 to toggle fullscreen mode");
+        stage.setOnCloseRequest((e) -> controller.terminate());
         // set the title and finally show the application window
         stage.setTitle("Connect-4 (SinglePlayer)");
         stage.show();

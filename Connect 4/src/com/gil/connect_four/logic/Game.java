@@ -1,5 +1,8 @@
 package com.gil.connect_four.logic;
 
+import com.sun.scenario.effect.impl.sw.java.JSWBlend_BLUEPeer;
+
+import java.util.Arrays;
 import java.util.Random;
 
 public class Game {
@@ -16,6 +19,7 @@ public class Game {
     /**
      * Default constructor - initialize the conditions of the start of a game
      */
+
     public Game(){
         // Zobrist Hashing initialization
         if (!ZHhashed){
@@ -33,6 +37,14 @@ public class Game {
         for (int x = 0; x < COLS; x++)
             for (int y = 0; y < ROWS; y++)
                 _board[x][y] = Color.Empty;
+    }
+
+    public Game(Game g){
+        _board = new Color[g._board.length][g._board[0].length];
+        for (int i = 0; i < g._board.length; i++)
+            for (int j = 0; j < g._board[0].length; j++)
+                _board[i][j] = g.get(i, j);
+        _redToMove = g._redToMove; // keep track of whose turn it is in a boolean
     }
 
     /**
