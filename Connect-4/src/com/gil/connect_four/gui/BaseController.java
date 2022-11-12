@@ -180,13 +180,7 @@ public abstract class BaseController {
      * as a result of the press, if the move is valid it would be played, otherwise nothing happens
      */
     @FXML
-    protected void mousePressedBoard(){
-        if (!game.isFreeCol(currentMouseCol) || (game.isRedToMove() ? Color.Red : Color.Yellow) != myColor)
-            return;
-
-//        fallingAnimation(currentMouseCol, game.firstEmpty(currentMouseCol), game.isRedToMove());
-        game.makeMove(currentMouseCol);
-    }
+    abstract protected void mousePressedBoard();
 
     /**
      * Play a sound from a file
@@ -219,7 +213,9 @@ public abstract class BaseController {
         Alert a = new Alert(Alert.AlertType.INFORMATION, "Game Over !");
         if (status == GameStatus.WIN)
             a.setHeaderText((game.isRedToMove() ? "The yellow " : "The red ") + "player has won the game.");
-        else a.setHeaderText("The game has ended in a tie.");
+        else if (status == GameStatus.TIMES_UP){
+            a.setHeaderText((game.isRedToMove() ? "The red " : "The yellow ") + "player has lost the game because they ran out of time.");
+        } else a.setHeaderText("The game has ended in a tie.");
         a.showAndWait();
     }
 

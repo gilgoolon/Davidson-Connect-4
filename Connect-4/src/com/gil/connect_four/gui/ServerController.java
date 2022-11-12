@@ -259,14 +259,16 @@ public class ServerController
                 {
                     int location = -1; // initialize move location
 
-                    if (input.hasNext()) {
+                    if (input.hasNext())
                         location = input.nextInt(); // get move location
-                        System.out.println(location);
-                    }
 
                     if (location == -1){
                         input.nextLine();
                         otherPlayerMessage(this, input.nextLine());
+                    }
+                    else if (location == -2){
+                        players[1-currentPlayer].output.format("Server>>> " + (game.isRedToMove() ? "The red " : "The yellow ") + "player has lost the game because they ran out of time.\n");
+                        players[1-currentPlayer].output.flush();
                     }
                     else {
                         // check for valid move
@@ -295,7 +297,9 @@ public class ServerController
                     ioException.printStackTrace();
                 }
                 finally {
-                    displayMessage("Server>>> The " + (game.isRedToMove() ? Color.Yellow : Color.Red) + " player has won the game!\n");
+                    if (game.status() == GameStatus.ONGOING)
+                        displayMessage("Server>>> " + (game.isRedToMove() ? "The red " : "The yellow ") + "player has lost the game because they ran out of time.");
+                    else displayMessage("Server>>> The " + (game.isRedToMove() ? Color.Yellow : Color.Red) + " player has won the game!\n");
                     terminate();
                 }
             }

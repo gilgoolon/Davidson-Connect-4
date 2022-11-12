@@ -1,5 +1,5 @@
 package com.gil.connect_four.logic;
 
 public enum GameStatus {
-    ONGOING, TIE, WIN
+    ONGOING, TIE, WIN, TIMES_UP
 }
