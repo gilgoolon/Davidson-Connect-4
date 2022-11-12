@@ -162,6 +162,16 @@ public class ServerController
             return false; // notify player that move was invalid
     }
 
+    private void otherPlayerMessage(Player p, String message){
+        Player other;
+        if (players[0] == p)
+            other = players[1];
+        else other = players[0];
+
+        other.output.format(message + "\n");
+        other.output.flush();
+    }
+
     // private inner class Player manages each Player as a runnable
     private class Player implements Runnable
     {
@@ -249,19 +259,28 @@ public class ServerController
                 {
                     int location = -1; // initialize move location
 
-                    if (input.hasNext())
+                    if (input.hasNext()) {
                         location = input.nextInt(); // get move location
-                    // check for valid move
-                    if (validateAndMove(location, playerNumber))
-                    {
-                        displayMessage("\nlocation: " + location);
-                        output.format("Server>>> Valid move.\n"); // notify client
-                        output.flush(); // flush output
+                        System.out.println(location);
                     }
-                    else // move was invalid
-                    {
-                        output.format("Server>>> Invalid move, try again\n");
-                        output.flush(); // flush output
+
+                    if (location == -1){
+                        input.nextLine();
+                        otherPlayerMessage(this, input.nextLine());
+                    }
+                    else {
+                        // check for valid move
+                        if (validateAndMove(location, playerNumber))
+                        {
+                            displayMessage("\nlocation: " + location);
+                            output.format("Server>>> Valid move.\n"); // notify client
+                            output.flush(); // flush output
+                        }
+                        else // move was invalid
+                        {
+                            output.format("Server>>> Invalid move, try again\n");
+                            output.flush(); // flush output
+                        }
                     }
                 }
             }

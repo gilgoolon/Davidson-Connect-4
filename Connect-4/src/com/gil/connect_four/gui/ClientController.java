@@ -40,7 +40,8 @@ public class ClientController extends BaseController implements Runnable{
         displayMessage("You: " + _chatTextField.getText() + "\n");
 
         // need to send to other player
-
+        output.format("-1\n" + _chatTextField.getText() + "\n");
+        output.flush();
         _chatTextField.setText("");
     }
 
