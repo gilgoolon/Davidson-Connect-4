@@ -26,14 +26,13 @@
    <left>
       <VBox alignment="TOP_CENTER" prefHeight="668.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <BorderPane.margin>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </BorderPane.margin>
-         <Label text="Chat"/>
-         <TextArea fx:id="_chatTextArea" editable="false" prefHeight="530.0" prefWidth="200.0"/>
-         <TextField fx:id="_chatTextField" alignment="TOP_LEFT" onAction="#sendChatMessage" prefHeight="118.0"
-                    prefWidth="200.0" promptText="Send a message...">
+         <Label text="Chat" />
+         <TextArea fx:id="_chatTextArea" editable="false" prefHeight="530.0" prefWidth="200.0" />
+         <TextField fx:id="_chatTextField" alignment="TOP_LEFT" onAction="#sendChatMessage" prefHeight="118.0" prefWidth="200.0" promptText="Send a message...">
             <font>
-               <Font name="Calibri" size="16.0"/>
+               <Font name="Calibri" size="16.0" />
             </font>
          </TextField>
       </VBox>
@@ -41,26 +40,25 @@
    <right>
       <VBox alignment="CENTER" prefHeight="668.0" prefWidth="180.0" BorderPane.alignment="CENTER">
          <BorderPane.margin>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </BorderPane.margin>
          <Label fx:id="_timeLabel">
             <VBox.margin>
-               <Insets bottom="50.0"/>
+               <Insets bottom="50.0" />
             </VBox.margin>
             <font>
-               <Font size="24.0"/>
+               <Font size="24.0" />
             </font>
          </Label>
          <Label fx:id="_opponentLabel" alignment="CENTER" text="Opponent: Gil" textAlignment="CENTER">
             <font>
-               <Font name="Calibri" size="16.0"/>
+               <Font name="Calibri" size="16.0" />
             </font>
             <VBox.margin>
-               <Insets bottom="20.0"/>
+               <Insets bottom="20.0" />
             </VBox.margin>
          </Label>
-         <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#quitPressed"
-                 text="Quit"/>
+         <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#quitPressed" text="Quit" />
       </VBox>
    </right>
 </BorderPane>

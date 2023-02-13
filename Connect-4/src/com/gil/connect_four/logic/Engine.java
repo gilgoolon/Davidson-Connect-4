@@ -22,16 +22,21 @@ public class Engine {
     public static int genBestMove(Game game, Color curr){
         List<Integer> legal_moves = Utils.genLegalMoves(game); // generating the legal moves
         HashMap<Integer,Double> evaluations = new HashMap<>(); // store the evaluation of each move in a map
-
+        MoveEval[] threads = new MoveEval[legal_moves.size()];
+        int i = 0;
         for (int move : legal_moves) { // calculate and store the eval of each move
             MoveEval me = new MoveEval(new Game(game), move, curr, evaluations);
+            threads[i++] = me;
             me.start();
-            try {
-                me.join();
-            } catch (Exception ignore){}
         }
 
-
+        for (MoveEval me : threads){
+            try {
+                me.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
         int best_move = -1;
         if (game.isRedToMove()) {
@@ -62,28 +67,28 @@ public class Engine {
             return evaluate(game);
 
         double bestVal;
-        if (current == Color.Yellow){
-            bestVal = Double.NEGATIVE_INFINITY;
+        if (current == Color.Yellow) { // yellow - maximize value
+            bestVal = Double.MIN_VALUE;
             for (int move : legal_moves){
                 game.makeMove(move);
-                double value = alphaBetaPruning(game,depth-1,alpha,beta,Utils.opColor(current));
+                double value = alphaBetaPruning(game, depth-1, alpha, beta, Utils.opColor(current));
                 game.unMakeMove(move);
-                bestVal = Math.max(bestVal,value);
-                alpha = Math.max(alpha,bestVal);
+                bestVal = Math.max(bestVal, value);
                 if (beta <= alpha)
                     break;
+                alpha = Math.max(alpha,bestVal);
             }
         }
         else { // yellow - minimize value
-            bestVal = Double.POSITIVE_INFINITY;
+            bestVal = Double.MAX_VALUE;
             for (int move : legal_moves){
                 game.makeMove(move);
-                double value = alphaBetaPruning(game,depth-1,alpha,beta,Utils.opColor(current));
+                double value = alphaBetaPruning(game, depth-1, alpha, beta, Utils.opColor(current));
                 game.unMakeMove(move);
-                bestVal = Math.min(bestVal,value);
-                beta = Math.min(beta,bestVal);
+                bestVal = Math.min(bestVal, value);
                 if (beta <= alpha)
                     break;
+                beta = Math.min(beta, bestVal);
             }
         }
         return bestVal;

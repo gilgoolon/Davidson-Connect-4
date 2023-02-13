@@ -8,6 +8,8 @@ public class MoveEval extends Thread{
     private final Game game;
     private final Color curr;
 
+    private static final int DEPTH = 10;
+
     public MoveEval(Game g, int m, Color c, Map<Integer, Double> map){
         evaluations = map;
         game = g;
@@ -18,7 +20,7 @@ public class MoveEval extends Thread{
     @Override
     public void run() {
         game.makeMove(move);
-        double eval = Engine.alphaBetaPruning(game, 6, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, curr);
+        double eval = Engine.alphaBetaPruning(game, DEPTH, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, curr);
         game.unMakeMove(move);
         synchronized (evaluations){
             evaluations.put(move, eval);
