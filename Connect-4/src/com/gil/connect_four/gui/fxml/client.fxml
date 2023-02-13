@@ -59,6 +59,11 @@
             </VBox.margin>
          </Label>
          <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#quitPressed" text="Quit" />
+         <Button mnemonicParsing="false" onAction="#leaderboardButtonPressed" text="Leaderboard" textAlignment="CENTER">
+            <VBox.margin>
+               <Insets top="20.0" />
+            </VBox.margin>
+         </Button>
       </VBox>
    </right>
 </BorderPane>

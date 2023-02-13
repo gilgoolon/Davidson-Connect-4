@@ -1,5 +1,6 @@
 package com.gil.connect_four.gui;
 
+import com.gil.connect_four.database.DBHandler;
 import com.gil.connect_four.logic.Color;
 import com.gil.connect_four.logic.Game;
 import com.gil.connect_four.logic.GameStatus;
@@ -179,6 +180,7 @@ public class ServerController
         private Scanner input; // input from client
         private Formatter output; // output to client
         private final int playerNumber; // tracks which player this is
+        private final String ip; // ip address of client
         private final Color color; // color for this player
         private boolean suspended = true; // whether thread is suspended
 
@@ -188,6 +190,7 @@ public class ServerController
             playerNumber = number; // store this player's number
             color = COLORS[playerNumber]; // specify player's color
             connection = socket; // store socket for client
+            ip = connection.getInetAddress().getHostAddress(); // get ip address
 
             try // obtain streams from Socket
             {
@@ -262,13 +265,22 @@ public class ServerController
                     if (input.hasNext())
                         location = input.nextInt(); // get move location
 
-                    if (location == -1){
+                    if (location == -1) { // player sent a message
+                        System.out.println("Message from " + ip + ": " + input.nextLine());
                         input.nextLine();
                         otherPlayerMessage(this, input.nextLine());
                     }
-                    else if (location == -2){
+                    else if (location == -2) { // player ran out of time
                         players[1-currentPlayer].output.format("Server>>> " + (game.isRedToMove() ? "The red " : "The yellow ") + "player has lost the game because they ran out of time.\n");
                         players[1-currentPlayer].output.flush();
+                    }
+                    else if (location == -3) { // DB request
+                        input.nextLine();
+                        String response = DBHandler.getInstance().getLeaderboard();
+                        if (response != null) {
+                            output.format("Server>>> Leaderboard: " + response + "\n");
+                            output.flush();
+                        }
                     }
                     else {
                         // check for valid move
@@ -297,9 +309,20 @@ public class ServerController
                     ioException.printStackTrace();
                 }
                 finally {
-                    if (game.status() == GameStatus.ONGOING)
+                    GameStatus status = game.status();
+                    if (status == GameStatus.ONGOING)
                         displayMessage("Server>>> " + (game.isRedToMove() ? "The red " : "The yellow ") + "player has lost the game because they ran out of time.");
-                    else displayMessage("Server>>> The " + (game.isRedToMove() ? Color.Yellow : Color.Red) + " player has won the game!\n");
+                    else {
+                        // update the database for wins and losses
+                        String event = status == GameStatus.TIE ? "T" : ((game.isRedToMove() == (color == Color.Red)) ? "L" : "W");
+                        String opponent = event.equals("T") ? "T" : (event.equals("L")? "W" : "L");
+                        DBHandler.getInstance().updatePlayer(ip, event);
+                        DBHandler.getInstance().updatePlayer(players[1-currentPlayer].ip, opponent);
+                        if (status == GameStatus.TIE)
+                            displayMessage("Server>>> The game has ended in a tie!\n");
+                        else
+                            displayMessage("Server>>> The " + (game.isRedToMove() ? Color.Red : Color.Yellow) + " player has won the game!\n");
+                    }
                     terminate();
                 }
             }
@@ -313,6 +336,7 @@ public class ServerController
     }
 
     public void terminate(){
+        DBHandler.getInstance().disconnect();
         runGame.shutdown();
         System.exit(1);
         Platform.exit();

@@ -60,6 +60,12 @@ public class ClientController extends BaseController implements Runnable{
         _chatTextField.setText("");
     }
 
+    @FXML
+    void leaderboardButtonPressed() {
+        output.format("-3\n"); // db request with code 1, which is to get the leaderboard
+        output.flush();
+    }
+
     /**
      * This function gets called every time the mouse is pressed on the board.
      * as a result of the press, if the move is valid it would be played, otherwise nothing happens
@@ -125,10 +131,10 @@ public class ClientController extends BaseController implements Runnable{
         try {
             AudioInputStream audioIn = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResourceAsStream("./assets/" + "playback_music_bicycle.wav")));
             Clip clip = AudioSystem.getClip();
-            clip.open(audioIn);
-            clip.loop(Clip.LOOP_CONTINUOUSLY); // loop until the program is terminated (game is over)
+//            clip.open(audioIn);
+//            clip.loop(Clip.LOOP_CONTINUOUSLY); // loop until the program is terminated (game is over)
 //            clip.start();
-            playback = clip; // save the clip for later
+//            playback = clip; // save the clip for later
         } catch (Exception ignore){}
     }
 
@@ -222,6 +228,32 @@ public class ClientController extends BaseController implements Runnable{
                     gameOver(GameStatus.TIMES_UP);
                     terminate();
                 });
+            }
+            else if (message.startsWith("Server>>> Leaderboard: ")) {
+                // leaderboard is in the format: "ip1 wins1 losses1 ties1 percentage1 name2 ..."
+                String[] leaderboardArr = message.substring("Server>>> Leaderboard: ".length()).split(" ");
+                StringBuilder leaderboardStr = new StringBuilder();
+                leaderboardStr.append("------------------------------------\n");
+                leaderboardStr.append("|                 Leaderboard             |\n");
+                leaderboardStr.append("------------------------------------\n");
+                leaderboardStr.append(String.format("| %-17s | %-9s | %-5s |", "IP", "W/L/T", "Win %"));
+                for (int i = 0; i < leaderboardArr.length; i += 5) {
+                    String ip = leaderboardArr[i];
+                    String wins = leaderboardArr[i + 1];
+                    String losses = leaderboardArr[i + 2];
+                    String ties = leaderboardArr[i + 3];
+                    String percentage = leaderboardArr[i + 4];
+                    leaderboardStr.append(String.format("%n| %-15s | %-10s | %-5s |", ip, wins + "/" + losses + "/" + ties, Math.round(Double.parseDouble(percentage)*1000)/10.0 + "%"));
+                }
+                leaderboardStr.append("\n------------------------------------\n");
+
+                // display the leaderboard
+                Platform.runLater(() -> {
+                    Alert a = new Alert(Alert.AlertType.INFORMATION, leaderboardStr.toString());
+                    a.setHeaderText("Leaderboard");
+                    a.showAndWait();
+                });
+                return; // don't display the message
             }
             displayMessage(message + "\n");
         }
