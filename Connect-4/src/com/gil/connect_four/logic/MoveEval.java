@@ -20,7 +20,7 @@ public class MoveEval extends Thread{
     @Override
     public void run() {
         game.makeMove(move);
-        double eval = Engine.alphaBetaPruning(game, DEPTH, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, curr);
+        double eval = Engine.alphaBetaPruning(game, DEPTH, -Double.MAX_VALUE, Double.MAX_VALUE, curr);
         game.unMakeMove(move);
         synchronized (evaluations){
             evaluations.put(move, eval);

@@ -9,7 +9,7 @@ public class Engine {
     // position characteristics
     private final static double CONNECT_2 = 1;
     private final static double CONNECT_3 = 5;
-    private final static double WIN = Double.POSITIVE_INFINITY;
+    private final static double WIN = Double.MAX_VALUE;
     public static int duplicates = 0;
 
     private final static HashMap<Game, Double> transpositionTable = new HashMap<>();
@@ -40,7 +40,7 @@ public class Engine {
 
         int best_move = -1;
         if (game.isRedToMove()) {
-            double best_eval = Double.NEGATIVE_INFINITY;
+            double best_eval = -Double.MAX_VALUE;
             for (int move : legal_moves) {
                 if (evaluations.get(move) >= best_eval){
                     best_move = move;
@@ -49,7 +49,7 @@ public class Engine {
             }
         }
         else {
-            double best_eval = Double.POSITIVE_INFINITY; // the best for yellow is more negative
+            double best_eval = Double.MAX_VALUE; // the best for yellow is more negative
             for (int move : legal_moves) {
                 if (evaluations.get(move) <= best_eval){
                     best_move = move;
@@ -68,15 +68,15 @@ public class Engine {
 
         double bestVal;
         if (current == Color.Yellow) { // yellow - maximize value
-            bestVal = Double.MIN_VALUE;
+            bestVal = -Double.MAX_VALUE;
             for (int move : legal_moves){
                 game.makeMove(move);
                 double value = alphaBetaPruning(game, depth-1, alpha, beta, Utils.opColor(current));
                 game.unMakeMove(move);
                 bestVal = Math.max(bestVal, value);
-                if (beta <= alpha)
-                    break;
                 alpha = Math.max(alpha,bestVal);
+                if (beta <= bestVal)
+                    break;
             }
         }
         else { // yellow - minimize value
@@ -86,9 +86,9 @@ public class Engine {
                 double value = alphaBetaPruning(game, depth-1, alpha, beta, Utils.opColor(current));
                 game.unMakeMove(move);
                 bestVal = Math.min(bestVal, value);
-                if (beta <= alpha)
-                    break;
                 beta = Math.min(beta, bestVal);
+                if (bestVal <= alpha)
+                    break;
             }
         }
         return bestVal;
@@ -105,6 +105,7 @@ public class Engine {
             duplicates++;
             return transpositionTable.get(game);
         }
+
         // initializations
         Color curr = game.isRedToMove() ? Color.Yellow : Color.Red;
         int sign = game.isRedToMove() ? -1 : 1;
