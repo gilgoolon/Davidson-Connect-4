@@ -4,7 +4,7 @@ import com.gil.connect_four.gui.SinglePlayerController;
 import javafx.application.Platform;
 
 public class MoveGenerator implements Runnable{
-    private SinglePlayerController controller;
+    private final SinglePlayerController controller;
     private int move;
     private final Game game;
     private final Color color;

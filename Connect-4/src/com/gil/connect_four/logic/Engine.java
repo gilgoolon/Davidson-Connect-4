@@ -9,10 +9,10 @@ public class Engine {
     // position characteristics
     private final static double CONNECT_2 = 1;
     private final static double CONNECT_3 = 5;
-    private final static double WIN = Integer.MAX_VALUE;
+    private final static double WIN = Double.POSITIVE_INFINITY;
     public static int duplicates = 0;
 
-    private final static HashMap<Integer,Double> transpositionTable = new HashMap<>();
+    private final static HashMap<Game, Double> transpositionTable = new HashMap<>();
 
     /**
      * Generate the best move "naively" - using brute force approach
@@ -101,10 +101,9 @@ public class Engine {
      * @return a double representing the evaluation of the given position
      */
     private static double evaluate(Game game){
-        Integer hash = game.hash();
-        if (transpositionTable.containsKey(hash)) {
+        if (transpositionTable.containsKey(game)) {
             duplicates++;
-            return transpositionTable.get(hash);
+            return transpositionTable.get(game);
         }
         // initializations
         Color curr = game.isRedToMove() ? Color.Yellow : Color.Red;
@@ -116,38 +115,50 @@ public class Engine {
             for (int x = 0; x + 3 < Game.COLS; x++) {
                 int countG = game.count(x, y, x + 3, y, curr);
                 int countE = game.count(x, y, x + 3, y, Color.Empty);
-                eval += subEval(countG,countE,sign);
+                double inc = subEval(countG, countE, sign);
+                if (inc == WIN || inc == -WIN)
+                    return inc;
+                eval += inc;
             }
         }
 
         // vertical check
         for (int x = 0; x < Game.COLS; x++){
             for (int y = 0; y + 3 < Game.ROWS; y++){
-                int countG = game.count(x,y,x,y+3, curr);
-                int countE = game.count(x,y,x,y+3, Color.Empty);
-                eval += subEval(countG,countE,sign);
+                int countG = game.count(x, y, x, y+3, curr);
+                int countE = game.count(x, y, x, y+3, Color.Empty);
+                double inc = subEval(countG, countE, sign);
+                if (inc == WIN || inc == -WIN)
+                    return inc;
+                eval += inc;
             }
         }
 
         // diagonal (up-right) check
         for (int x = 0; x + 3 < Game.COLS; x++){
             for (int y = 0; y + 3 < Game.ROWS; y++){
-                int countG = game.count(x,y, x+3, y+3, curr);
-                int countE = game.count(x,y, x+3, y+3, Color.Empty);
-                eval += subEval(countG,countE,sign);
+                int countG = game.count(x, y, x+3, y+3, curr);
+                int countE = game.count(x, y, x+3, y+3, Color.Empty);
+                double inc = subEval(countG, countE, sign);
+                if (inc == WIN || inc == -WIN)
+                    return inc;
+                eval += inc;
             }
         }
 
         // diagonal (up-left) check
-        for (int x = 0; x + 3 < Game.COLS; x++){
-            for (int y = Game.ROWS-1; y - 3 >= 0; y--){
-                int countG = game.count(x,y, x+3, y-3, curr);
-                int countE = game.count(x,y, x+3, y-3, Color.Empty);
-                eval += subEval(countG,countE,sign);
+        for (int x = 3; x < Game.COLS; x++){
+            for (int y = 0; y + 3 < Game.ROWS; y++){
+                int countG = game.count(x, y, x - 3, y + 3, curr);
+                int countE = game.count(x, y, x - 3, y + 3, Color.Empty);
+                double inc = subEval(countG, countE, sign);
+                if (inc == WIN || inc == -WIN)
+                    return inc;
+                eval += inc;
             }
         }
 
-        transpositionTable.put(hash,eval*sign);
+        transpositionTable.put(game, eval*sign);
         return eval*sign;
     }
 

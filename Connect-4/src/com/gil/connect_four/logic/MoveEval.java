@@ -8,7 +8,7 @@ public class MoveEval extends Thread{
     private final Game game;
     private final Color curr;
 
-    private static final int DEPTH = 10;
+    private static final int DEPTH = 15;
 
     public MoveEval(Game g, int m, Color c, Map<Integer, Double> map){
         evaluations = map;

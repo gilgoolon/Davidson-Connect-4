@@ -1,9 +1,6 @@
 package com.gil.connect_four.logic;
 
-import com.sun.scenario.effect.impl.sw.java.JSWBlend_BLUEPeer;
-
 import java.util.Arrays;
-import java.util.Random;
 
 public class Game {
 
@@ -12,26 +9,10 @@ public class Game {
     private final Color[][] _board; // matrix storing a custom enum (Red 1, Yellow -1, Empty 0)
     private boolean _redToMove; // keep track of whose turn it is in a boolean
 
-    // Zobrist Hashing
-    private static int ZHtable[][] = new int[6*7][2];
-    private static boolean ZHhashed = false;
-    private static int ZHyellowToMove;
     /**
      * Default constructor - initialize the conditions of the start of a game
      */
-
     public Game(){
-        // Zobrist Hashing initialization
-        if (!ZHhashed){
-            Random r = new Random();
-            for (int i = 0; i < ZHtable.length; i++){
-                ZHtable[i][0] = r.nextInt();
-                ZHtable[i][1] = r.nextInt();
-            }
-            ZHyellowToMove = r.nextInt();
-            ZHhashed = true;
-        }
-
         _redToMove = true;
         _board = new Color[COLS][ROWS];
         for (int x = 0; x < COLS; x++)
@@ -190,18 +171,10 @@ public class Game {
         return sum;
     }
 
-    public int hash(){
-        int hash = 0;
-        if (!_redToMove)
-            hash ^= ZHyellowToMove;
-        for (int i = 0; i < _board.length; i++){
-            for (int j = 0; j < _board[0].length; j++){
-                if (_board[i][j] != Color.Empty){
-                    int k = _board[i][j] == Color.Red ? 0 : 1;
-                    hash ^= ZHtable[i*_board[0].length + j][k];
-                }
-            }
-        }
-        return hash;
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Game g))
+            return false;
+        return Arrays.deepEquals(g._board, _board) && g._redToMove == _redToMove;
     }
 }
