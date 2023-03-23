@@ -4,6 +4,7 @@ import com.gil.connect_four.database.DBHandler;
 import com.gil.connect_four.logic.Color;
 import com.gil.connect_four.logic.Game;
 import com.gil.connect_four.logic.GameStatus;
+import com.gil.connect_four.logic.Utils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
@@ -266,7 +267,6 @@ public class ServerController
                         location = input.nextInt(); // get move location
 
                     if (location == -1) { // player sent a message
-                        System.out.println("Message from " + ip + ": " + input.nextLine());
                         input.nextLine();
                         otherPlayerMessage(this, input.nextLine());
                     }
@@ -286,9 +286,9 @@ public class ServerController
                         // check for valid move
                         if (validateAndMove(location, playerNumber))
                         {
-                            displayMessage("\nlocation: " + location);
-                            output.format("Server>>> Valid move.\n"); // notify client
-                            output.flush(); // flush output
+                            displayMessage("\nlocation: " + location + " - " + (game.isRedToMove() ? "Yellow" : "Red"));
+//                            output.format("Server>>> Valid move.\n"); // notify client
+//                            output.flush(); // flush output
                         }
                         else // move was invalid
                         {
@@ -311,7 +311,7 @@ public class ServerController
                 finally {
                     GameStatus status = game.status();
                     if (status == GameStatus.ONGOING)
-                        displayMessage("Server>>> " + (game.isRedToMove() ? "The red " : "The yellow ") + "player has lost the game because they ran out of time.");
+                        displayMessage("\nServer>>> " + (game.isRedToMove() ? "The red " : "The yellow ") + "player has lost the game because they ran out of time.");
                     else {
                         // update the database for wins and losses
                         String event = status == GameStatus.TIE ? "T" : ((game.isRedToMove() == (color == Color.Red)) ? "L" : "W");

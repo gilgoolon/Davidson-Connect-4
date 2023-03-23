@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>com.gil.connect_four.database</OriginalElement>
+  <nodes>
+    <node x="-164.0" y="-107.0">com.gil.connect_four.database.DBHandler</node>
+  </nodes>
+  <notes />
+  <edges />
+  <settings layout="Hierarchic" zoom="1.3922651933701657" showDependencies="false" x="-40.5" y="73.99999999999999" />
+  <SelectedNodes>
+    <node>com.gil.connect_four.database.DBHandler</node>
+  </SelectedNodes>
+  <Categories>
+    <Category>Constructors</Category>
+    <Category>Fields</Category>
+    <Category>Inner Classes</Category>
+    <Category>Methods</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

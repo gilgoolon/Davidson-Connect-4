@@ -30,7 +30,7 @@ public class ClientController extends BaseController implements Runnable{
     private Label _timeLabel;
 
     // Networking variables
-//    private static final String serverIP = "192.168.1.134"; // Gil's laptop's IP address
+    private static final String SERVER_IP = "localhost"; //host IP address
     private Scanner input; // input from server
     private Formatter output; // output to server
     private final String hostname; // host name for server
@@ -42,7 +42,7 @@ public class ClientController extends BaseController implements Runnable{
 
     public ClientController(){
         super();
-        hostname = "localhost"; // set name of server
+        hostname = SERVER_IP; // set name of server
     }
 
     public void init(){

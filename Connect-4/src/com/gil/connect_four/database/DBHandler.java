@@ -25,12 +25,6 @@ public class DBHandler {
      */
     private DBHandler() {
         isConnected = false;
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            System.out.println("Could not load the driver");
-            throw new RuntimeException(e);
-        }
     }
 
     /**
