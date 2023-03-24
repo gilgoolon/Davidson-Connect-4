@@ -15,7 +15,7 @@ public class DBHandler {
 
     private final static String url = "jdbc:mysql://localhost:3306/connect4leaderboard";
     private final static String user = "root";
-    private final static String password = "Alpert1704";
+    private final static String password = "**********"; // redacted
 
     private Connection connection;
     private boolean isConnected;

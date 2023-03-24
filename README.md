@@ -1,6 +1,6 @@
 # Connect-4 AI and more
 ### by: Gil Alpert
-### release date: --:--:----
+### release date: 24-03-2023
 
 ## Introduction
 Connect-4 is a Two player board game published on 1974.

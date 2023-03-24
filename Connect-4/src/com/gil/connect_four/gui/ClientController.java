@@ -131,10 +131,10 @@ public class ClientController extends BaseController implements Runnable{
         try {
             AudioInputStream audioIn = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResourceAsStream("./assets/" + "playback_music_bicycle.wav")));
             Clip clip = AudioSystem.getClip();
-//            clip.open(audioIn);
-//            clip.loop(Clip.LOOP_CONTINUOUSLY); // loop until the program is terminated (game is over)
-//            clip.start();
-//            playback = clip; // save the clip for later
+            clip.open(audioIn);
+            clip.loop(Clip.LOOP_CONTINUOUSLY); // loop until the program is terminated (game is over)
+            clip.start();
+            playback = clip; // save the clip for later
         } catch (Exception ignore){}
     }
 

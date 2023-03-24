@@ -8,8 +8,4 @@ public enum Color {
     Color(int val){
         value = val;
     }
-
-    public int val(){
-        return value;
-    }
 }
