@@ -11,18 +11,21 @@ in a few minutes and play it off of intuition,
 but to perfect the art of playing, might take years for some...
 
 ## Motivation
-As mentioned before, Connect-4 is a Two player game
+As mentioned before, Connect-4 is a Two player game,
 meaning that in order to play it you must find an opponent to play against.
-Board games are fun to play in person, but we don't always have someone to play against.
+Board games are fun to play in-person, but we don't always have someone to play with.
 
 ## Description
-The project has Two main options\sections to choose from.
-The First, is playing online. The project has a multiplayer section which enables
-its users to connect through the internet to a server and play each other from
-anywhere in the world. And the Second, is choosing the level of their opponent
-and playing a computer program offline. Both options allow incredible functionality
-and solve the problem in Two completely different ways which together present a great
-result.
+The project has Two main sections to play.
+
+The First, is playing online. The project has a multiplayer section which allows
+users to connect through the internet to a server and play each other from
+anywhere in the world. The players can access a leaderboard and chat with each other.
+
+And the Second, is choosing the level of a computer and playing an AI.
+The player will first choose the wanted difficulty, then play a program with that difficulty.
+
+Both options allow nice functionality and solve the problem in Two different ways which together present a great result.
 
 ## Technologies
 The two main technologies I have used to create this project are in both sections
@@ -36,9 +39,10 @@ the other player. Simplified, the protocol is based on stable connection between
 and a stream of data instead of individual packets (UDP).
 
 For the single player section, I have chose an algorithmic approach for the problem of
-designing an engine. The most important algorithm in my opinion is the "Alpha-Beta pruning"
+designing an engine. The most important algorithm in my implementation is the "Alpha-Beta pruning"
 algorithm. The algorithm helps with making decisions on which moves to make, and evaluating
 a given game position based on the future positions ahead. Simplified,
 every move a player has 7 (or less) moves to choose from, and for each move there are 7 (or less)
 more responses of the opponent. The algorithm recursively prunes branches based on their
-evaluation, and doesn't play moves which favors the opponent.
+evaluation, and doesn't play moves that favor the opponent.
+The difficulty of the "AI" player can be controlled by altering the depth of the recursive search.
